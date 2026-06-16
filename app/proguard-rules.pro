@@ -1,0 +1,2 @@
+-keep class com.zestyysports.app.** { *; }
+-dontwarn androidx.media3.**

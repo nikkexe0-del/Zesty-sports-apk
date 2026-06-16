@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Native Android APK
 on:
   push:
     branches: [ "main", "master" ]
@@ -6,40 +6,39 @@ on:
 
 jobs:
   build:
-    name: Build APK
+    name: Build Native APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'npm'
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Web App
-        run: npm run build
-
-      - name: Sync Capacitor
+          java-version: '17'
+          
+      - name: Generate Keystore
         run: |
-          npx cap add android || npx cap sync android
+          keytool -genkey -v -keystore release.keystore -alias release -keyalg RSA -keysize 2048 -validity 10000 -storepass "zestypassword" -keypass "zestypassword" -dname "CN=Zestyy, OU=App, O=Zestyy, L=City, S=State, C=US"
+          # Convert to base64 so user can easily copy it if they want to put it in Secrets later
+          base64 release.keystore > release.keystore.base64
 
       - name: Build Android APK
-        working-directory: ./android
-        run: gradle assembleDebug
+        run: |
+          gradle assembleRelease -PkeystorePath=../release.keystore -PkeystorePassword=zestypassword -PkeyAlias=release -PkeyPassword=zestypassword
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Keystore Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zesty-keystore
+          path: |
+            release.keystore
+            release.keystore.base64
