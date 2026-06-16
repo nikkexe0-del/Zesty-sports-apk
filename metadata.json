@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: zestyysports for android",
+  "description": "for M3U streams supporting HLS, MPEG-TS",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
