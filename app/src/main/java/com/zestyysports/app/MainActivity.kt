@@ -39,6 +39,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,12 +57,20 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
+val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
+)
+
+val fontName = GoogleFont("Inter")
+
 val InterFontFamily = FontFamily(
-    Font(R.font.inter_regular, FontWeight.Normal),
-    Font(R.font.inter_medium, FontWeight.Medium),
-    Font(R.font.inter_bold, FontWeight.Bold),
-    Font(R.font.inter_extrabold, FontWeight.ExtraBold),
-    Font(R.font.inter_black, FontWeight.Black)
+    Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Normal),
+    Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Medium),
+    Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Bold),
+    Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.ExtraBold),
+    Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Black)
 )
 
 
@@ -289,25 +299,7 @@ fun MainScreen(
                 .statusBarsPadding()
                 .verticalScroll(scrollState)
         ) {
-            // Theme Toggle positioned top right
-            Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                Button(
-                    onClick = onThemeToggle,
-                    modifier = Modifier.align(Alignment.TopEnd),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(50),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        if (isDarkTheme) "LIGHT MODE" else "DARK MODE",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.sp
-                    )
-                }
-            }
-
+            Spacer(modifier = Modifier.height(16.dp))
             // Hero Section
             HeroSection()
 
@@ -465,31 +457,42 @@ fun HeroSection() {
             Text("Worldwide channels in HD, Ad-free, 4K — for free. Access premium channels instantly.", color = Color.LightGray, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(
-                    onClick = { 
-                        val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))
-                        context.startActivity(i)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal=16.dp, vertical=8.dp)
+                // Telegram Gradient Button
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
+                        .clickable { 
+                            val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))
+                            context.startActivity(i)
+                        }
+                        .padding(horizontal=16.dp, vertical=10.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Send, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color.White)
-                    Spacer(Modifier.width(4.dp))
-                    Text("TELEGRAM", fontSize=10.sp, fontWeight=FontWeight.Black, color=Color.White)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Send, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color.White)
+                        Spacer(Modifier.width(4.dp))
+                        Text("TELEGRAM", fontSize=10.sp, fontWeight=FontWeight.Black, color=Color.White)
+                    }
                 }
-                Button(
-                    onClick = { 
-                        val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))
-                        context.startActivity(i)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal=16.dp, vertical=8.dp)
+                
+                // Instagram Gradient Button
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Brush.horizontalGradient(listOf(Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF))))
+                        .clickable { 
+                            val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))
+                            context.startActivity(i)
+                        }
+                        .padding(horizontal=16.dp, vertical=10.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Person, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color.White)
-                    Spacer(Modifier.width(4.dp))
-                    Text("@NIKKK.EXE", fontSize=10.sp, fontWeight=FontWeight.Black, color=Color.White)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Person, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color.White)
+                        Spacer(Modifier.width(4.dp))
+                        Text("@NIKKK.EXE", fontSize=10.sp, fontWeight=FontWeight.Black, color=Color.White)
+                    }
                 }
             }
         }
@@ -523,19 +526,26 @@ fun Footer() {
         )
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(
-                onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal=12.dp, vertical=6.dp)
+            // Telegram Gradient Button
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
+                    .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }
+                    .padding(horizontal=12.dp, vertical=8.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text("TELEGRAM", fontSize=9.sp, fontWeight=FontWeight.Black, color=Color.White)
             }
-            Button(
-                onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal=12.dp, vertical=6.dp)
+            
+            // Instagram Gradient Button
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF))))
+                    .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) }
+                    .padding(horizontal=12.dp, vertical=8.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text("@NIKKK.EXE", fontSize=9.sp, fontWeight=FontWeight.Black, color=Color.White)
             }
@@ -720,6 +730,14 @@ fun VideoPlayerScreen(
 
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    
+    var showControls by remember { mutableStateOf(false) }
+    LaunchedEffect(showControls) {
+        if (showControls) {
+            delay(4000)
+            showControls = false
+        }
+    }
 
     Column(
         Modifier
@@ -733,17 +751,13 @@ fun VideoPlayerScreen(
             Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)
         }
         Box(
-            modifier = playerModifier
+            modifier = playerModifier.clickable { showControls = !showControls }
         ) {
             AndroidView(
                 factory = {
                     PlayerView(context).apply {
                         player = exoPlayer
-                        useController = true
-                        setShowNextButton(false)
-                        setShowPreviousButton(false)
-                        setShowFastForwardButton(false)
-                        setShowRewindButton(false)
+                        useController = false
                         layoutParams = android.view.ViewGroup.LayoutParams(
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -850,36 +864,39 @@ fun VideoPlayerScreen(
                 }
             }
 
-            // Top bar overlay for back/fullscreen
-            if (bufferCountdown == 0 && previewSeconds > 0 || isUnlocked) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .statusBarsPadding(), 
-                    verticalAlignment = Alignment.CenterVertically
+            // Custom Controller Overlay
+            if (showControls && bufferCountdown <= 0 && (isUnlocked || previewSeconds > 0)) {
+                var isPlaying by remember { mutableStateOf(exoPlayer.isPlaying) }
+                Box(
+                    modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.4f))
                 ) {
+                    // Play/Pause Center
                     IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                        onClick = { 
+                            if (isPlaying) exoPlayer.pause() else exoPlayer.play()
+                            isPlaying = !isPlaying
+                        }, 
+                        modifier = Modifier.align(Alignment.Center).background(Color.Black.copy(alpha=0.5f), CircleShape).size(64.dp)
                     ) {
+                        Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
+                    }
+                    
+                    // Top Left: Back
+                    IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart).padding(8.dp).then(if (isLandscape) Modifier.statusBarsPadding() else Modifier)) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = channel.name, 
-                        color = Color.White, 
-                        fontSize = 16.sp, 
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f).padding(end=8.dp)
-                    )
-                    IconButton(
-                        onClick = { onOrientationChange(true) },
-                        modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    
+                    // Bottom Right: Fullscreen & Stats
+                    Row(
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = "Fullscreen", tint = Color.White)
+                        IconButton(onClick = { showStatsForNerds = !showStatsForNerds }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Stats", tint = Color.White)
+                        }
+                        IconButton(onClick = { onOrientationChange(!isLandscape) }) {
+                            Icon(if (isLandscape) Icons.Default.FullscreenExit else Icons.Default.Fullscreen, contentDescription = "Fullscreen", tint = Color.White)
+                        }
                     }
                 }
             }
