@@ -1,34 +1,41 @@
 package com.zestyysports.app
 
 import android.os.Bundle
-import android.util.Log
+import android.content.pm.ActivityInfo
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import coil.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttp
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okio.IOException
 
 data class M3UItem(val id: String, val name: String, val logo: String, val group: String, val url: String)
 
@@ -37,15 +44,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme(colorScheme = darkColorScheme()) {
-                ZestyyApp()
+            MaterialTheme(colorScheme = darkColorScheme(
+                background = Color(0xFF050505),
+                surface = Color(0xFF111111)
+            )) {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    ZestyyApp(onOrientationChange = { landscape ->
+                        requestedOrientation = if (landscape) {
+                            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                        } else {
+                            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                        }
+                    })
+                }
             }
         }
     }
 }
 
 @Composable
-fun ZestyyApp() {
+fun ZestyyApp(onOrientationChange: (Boolean) -> Unit) {
     var selectedChannel by remember { mutableStateOf<M3UItem?>(null) }
     var channels by remember { mutableStateOf<List<M3UItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -73,10 +91,13 @@ fun ZestyyApp() {
     }
 
     if (selectedChannel != null) {
-        VideoPlayerScreen(channel = selectedChannel!!) {
-            selectedChannel = null
-        }
+        VideoPlayerScreen(
+            channel = selectedChannel!!, 
+            onOrientationChange = onOrientationChange,
+            onBack = { selectedChannel = null }
+        )
     } else {
+        onOrientationChange(false) // Make sure portrait
         ChannelListScreen(channels, isLoading) {
             selectedChannel = it
         }
@@ -89,32 +110,27 @@ fun ChannelListScreen(channels: List<M3UItem>, isLoading: Boolean, onPlay: (M3UI
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("ZestyySports Premium") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black, titleContentColor = Color.White)
+                title = { Text("zestyysports adfree", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF050505), 
+                    titleContentColor = Color.White
+                )
             )
-        }
+        },
+        containerColor = Color(0xFF050505)
     ) { padding ->
         if (isLoading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = Color.Red)
             }
         } else {
-            LazyColumn(Modifier.padding(padding).fillMaxSize()) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 140.dp),
+                contentPadding = PaddingValues(8.dp),
+                modifier = Modifier.padding(padding).fillMaxSize()
+            ) {
                 items(channels) { channel ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .clickable { onPlay(channel) },
-                        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(channel.name, color = Color.White, fontSize = 18.sp)
-                            if (channel.group.isNotEmpty()) {
-                                Text(channel.group, color = Color.LightGray, fontSize = 12.sp)
-                            }
-                        }
-                    }
+                    ChannelMiniCard(channel, onPlay)
                 }
             }
         }
@@ -122,7 +138,86 @@ fun ChannelListScreen(channels: List<M3UItem>, isLoading: Boolean, onPlay: (M3UI
 }
 
 @Composable
-fun VideoPlayerScreen(channel: M3UItem, onBack: () -> Unit) {
+fun ChannelMiniCard(channel: M3UItem, onPlay: (M3UItem) -> Unit) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable { onPlay(channel) },
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF141414)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color(0xFF0A0A0A)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (channel.logo.isNotEmpty()) {
+                    AsyncImage(
+                        model = channel.logo,
+                        contentDescription = channel.name,
+                        contentScale = ContentScale.Inside,
+                        modifier = Modifier.fillMaxSize().padding(16.dp)
+                    )
+                } else {
+                    Text(
+                        text = channel.name.take(3).uppercase(),
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 24.sp
+                    )
+                }
+
+                // Live Badge
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .background(Color.Red, RoundedCornerShape(2.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "LIVE",
+                        color = Color.White,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = channel.name, 
+                color = Color.White, 
+                fontSize = 12.sp, 
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            
+            if (channel.group.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = channel.group.uppercase(), 
+                    color = Color.Gray, 
+                    fontSize = 9.sp, 
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun VideoPlayerScreen(channel: M3UItem, onOrientationChange: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
@@ -133,27 +228,48 @@ fun VideoPlayerScreen(channel: M3UItem, onBack: () -> Unit) {
         }
     }
 
+    LaunchedEffect(Unit) {
+        onOrientationChange(true) // Switch to Landscape
+    }
+
     DisposableEffect(Unit) {
         onDispose {
             exoPlayer.release()
+            onOrientationChange(false) // Switch back when leaving
         }
     }
 
-    Column(Modifier.fillMaxSize().padding(top = 32.dp)) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
-            }
-            Text(channel.name, color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(start = 16.dp))
-        }
+    BackHandler {
+        onBack()
+    }
+
+    Box(Modifier.fillMaxSize().background(Color.Black)) {
         AndroidView(
             factory = {
                 PlayerView(context).apply {
                     player = exoPlayer
+                    useController = true
                 }
             },
-            modifier = Modifier.fillMaxWidth().aspectRatio(16f/9f)
+            modifier = Modifier.fillMaxSize()
         )
+        
+        // Custom Back Button Overlay
+        Row(Modifier.fillMaxWidth().padding(16.dp).statusBarsPadding(), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
+            ) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+            }
+            Text(
+                text = channel.name, 
+                color = Color.White, 
+                fontSize = 16.sp, 
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+        }
     }
 }
 

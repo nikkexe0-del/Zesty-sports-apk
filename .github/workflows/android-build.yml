@@ -18,27 +18,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           
-      - name: Generate Keystore
-        run: |
-          keytool -genkey -v -keystore release.keystore -alias release -keyalg RSA -keysize 2048 -validity 10000 -storepass "zestypassword" -keypass "zestypassword" -dname "CN=Zestyy, OU=App, O=Zestyy, L=City, S=State, C=US"
-          # Convert to base64 so user can easily copy it if they want to put it in Secrets later
-          base64 release.keystore > release.keystore.base64
-
       - name: Build Android APK
         run: |
-          gradle assembleRelease -PkeystorePath=../release.keystore -PkeystorePassword=zestypassword -PkeyAlias=release -PkeyPassword=zestypassword
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: app/build/outputs/apk/release/app-release.apk
-
-      - name: Upload Keystore Artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: zesty-keystore
-          path: |
-            release.keystore
-            release.keystore.base64
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk

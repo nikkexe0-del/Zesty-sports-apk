@@ -15,23 +15,10 @@ android {
         versionName = "1.0"
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile = project.findProperty("keystorePath")?.let { file(it) }
-            storePassword = project.findProperty("keystorePassword") as String?
-            keyAlias = project.findProperty("keyAlias") as String?
-            keyPassword = project.findProperty("keyPassword") as String?
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Optional: If environment properties exist, sign the app
-            if (project.hasProperty("keystorePath")) {
-                signingConfig = signingConfigs.getByName("release")
-            }
         }
     }
     compileOptions {
@@ -71,4 +58,7 @@ dependencies {
     // Network & JSON
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }
