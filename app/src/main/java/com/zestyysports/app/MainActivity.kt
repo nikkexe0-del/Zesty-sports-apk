@@ -10,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,7 +35,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,6 +54,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+
+val InterFontFamily = FontFamily(
+    Font(R.font.inter_regular, FontWeight.Normal),
+    Font(R.font.inter_medium, FontWeight.Medium),
+    Font(R.font.inter_bold, FontWeight.Bold),
+    Font(R.font.inter_extrabold, FontWeight.ExtraBold),
+    Font(R.font.inter_black, FontWeight.Black)
+)
+
 
 data class M3UItem(
     val id: String,
@@ -84,7 +97,25 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-            MaterialTheme(colorScheme = colorScheme) {
+            val typography = Typography(
+                displayLarge = androidx.compose.material3.Typography().displayLarge.copy(fontFamily = InterFontFamily),
+                displayMedium = androidx.compose.material3.Typography().displayMedium.copy(fontFamily = InterFontFamily),
+                displaySmall = androidx.compose.material3.Typography().displaySmall.copy(fontFamily = InterFontFamily),
+                headlineLarge = androidx.compose.material3.Typography().headlineLarge.copy(fontFamily = InterFontFamily),
+                headlineMedium = androidx.compose.material3.Typography().headlineMedium.copy(fontFamily = InterFontFamily),
+                headlineSmall = androidx.compose.material3.Typography().headlineSmall.copy(fontFamily = InterFontFamily),
+                titleLarge = androidx.compose.material3.Typography().titleLarge.copy(fontFamily = InterFontFamily),
+                titleMedium = androidx.compose.material3.Typography().titleMedium.copy(fontFamily = InterFontFamily),
+                titleSmall = androidx.compose.material3.Typography().titleSmall.copy(fontFamily = InterFontFamily),
+                bodyLarge = androidx.compose.material3.Typography().bodyLarge.copy(fontFamily = InterFontFamily),
+                bodyMedium = androidx.compose.material3.Typography().bodyMedium.copy(fontFamily = InterFontFamily),
+                bodySmall = androidx.compose.material3.Typography().bodySmall.copy(fontFamily = InterFontFamily),
+                labelLarge = androidx.compose.material3.Typography().labelLarge.copy(fontFamily = InterFontFamily),
+                labelMedium = androidx.compose.material3.Typography().labelMedium.copy(fontFamily = InterFontFamily),
+                labelSmall = androidx.compose.material3.Typography().labelSmall.copy(fontFamily = InterFontFamily)
+            )
+
+            MaterialTheme(colorScheme = colorScheme, typography = typography) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -255,6 +286,7 @@ fun MainScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+                .statusBarsPadding()
                 .verticalScroll(scrollState)
         ) {
             // Theme Toggle positioned top right
@@ -424,7 +456,11 @@ fun HeroSection() {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text("zestyysports", color = Color.White, fontSize = 36.sp, fontWeight = FontWeight.Black, letterSpacing = (-1).sp)
+            Image(
+                painter = painterResource(id = R.drawable.zestyy_logo),
+                contentDescription = "Zesty Logo",
+                modifier = Modifier.height(36.dp)
+            )
             Spacer(modifier = Modifier.height(4.dp))
             Text("Worldwide channels in HD, Ad-free, 4K — for free. Access premium channels instantly.", color = Color.LightGray, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(12.dp))
@@ -471,7 +507,11 @@ fun Footer() {
     ) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.surface))
         Spacer(Modifier.height(24.dp))
-        Text("ZESTY", color = MaterialTheme.colorScheme.onBackground, fontSize = 24.sp, fontWeight = FontWeight.Black)
+        Image(
+            painter = painterResource(id = R.drawable.zestyy_logo),
+            contentDescription = "Zesty Logo",
+            modifier = Modifier.height(24.dp)
+        )
         Spacer(Modifier.height(8.dp))
         Text(
             "Worldwide channels in HD, Ad-free, 4K — for free.", 
@@ -492,14 +532,23 @@ fun Footer() {
                 Text("TELEGRAM", fontSize=9.sp, fontWeight=FontWeight.Black, color=Color.White)
             }
             Button(
-                onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface),
+                onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
                 shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal=12.dp, vertical=6.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha=0.2f))
+                contentPadding = PaddingValues(horizontal=12.dp, vertical=6.dp)
             ) {
-                Text("MORE FROM ZESTYY", fontSize=9.sp, fontWeight=FontWeight.Black)
+                Text("@NIKKK.EXE", fontSize=9.sp, fontWeight=FontWeight.Black, color=Color.White)
             }
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(
+            onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface),
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal=12.dp, vertical=6.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha=0.2f))
+        ) {
+            Text("MORE FROM ZESTYY", fontSize=9.sp, fontWeight=FontWeight.Black)
         }
         Spacer(Modifier.height(24.dp))
     }
@@ -614,7 +663,7 @@ fun VideoPlayerScreen(
     val context = LocalContext.current
     val sharedPrefs = remember { context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE) }
     
-    var bufferCountdown by remember { mutableStateOf(15) }
+    var bufferCountdown by remember { mutableStateOf(5) }
     var isUnlocked by remember { mutableStateOf(sharedPrefs.getBoolean("zesty_unlocked", false)) }
     var previewSeconds by remember { mutableStateOf(120) }
     var unlockCode by remember { mutableStateOf("") }
@@ -625,7 +674,7 @@ fun VideoPlayerScreen(
     }
 
     LaunchedEffect(channel) {
-        bufferCountdown = 15
+        bufferCountdown = 5
         previewSeconds = 120
         showStatsForNerds = false
         val mediaItem = MediaItem.fromUri(channel.url)
@@ -669,29 +718,42 @@ fun VideoPlayerScreen(
         }
     }
 
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
     Column(
         Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(if (isLandscape) Color.Black else MaterialTheme.colorScheme.background)
+            .then(if (isLandscape) Modifier else Modifier.statusBarsPadding())
     ) {
+        val playerModifier = if (isLandscape) {
+            Modifier.fillMaxSize()
+        } else {
+            Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)
+        }
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black)
+            modifier = playerModifier
         ) {
             AndroidView(
                 factory = {
                     PlayerView(context).apply {
                         player = exoPlayer
                         useController = true
+                        setShowNextButton(false)
+                        setShowPreviousButton(false)
+                        setShowFastForwardButton(false)
+                        setShowRewindButton(false)
+                        layoutParams = android.view.ViewGroup.LayoutParams(
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                        )
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
+                modifier = Modifier.fillMaxSize()
             )
 
-            // 15 seconds pseudo-buffer 
+            // 5 seconds pseudo-buffer 
             if (bufferCountdown > 0) {
                 Box(
                     modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.9f)),
@@ -743,9 +805,14 @@ fun VideoPlayerScreen(
                 }
             } else {
                 // Watermark & Countdown
-                Box(modifier = Modifier.matchParentSize().padding(16.dp).statusBarsPadding(), contentAlignment = Alignment.TopEnd) {
+                Box(modifier = Modifier.matchParentSize().padding(16.dp).then(if (isLandscape) Modifier.statusBarsPadding() else Modifier), contentAlignment = Alignment.TopEnd) {
                     Column(horizontalAlignment = Alignment.End) {
-                         Text("zestyysports", color = Color.White.copy(alpha=0.4f), fontSize = 14.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                         Image(
+                             painter = painterResource(id = R.drawable.zestyy_logo),
+                             contentDescription = "Watermark",
+                             modifier = Modifier.height(14.dp),
+                             alpha = 0.4f
+                         )
                          if (!isUnlocked) {
                              Text(text = "${previewSeconds / 60}:${String.format("%02d", previewSeconds % 60)}", color=Color.White.copy(alpha=0.4f), fontSize=12.sp, fontWeight=FontWeight.Bold)
                          }
@@ -753,19 +820,31 @@ fun VideoPlayerScreen(
                 }
                 
                 if (showStatsForNerds) {
-                    // Stats for Nerds overlay
-                    Box(modifier = Modifier.padding(16.dp).statusBarsPadding().align(Alignment.CenterStart).background(Color.Black.copy(alpha=0.7f), RoundedCornerShape(8.dp)).padding(12.dp)) {
+                    var currentPosition by remember { mutableStateOf(0L) }
+                    LaunchedEffect(Unit) {
+                        while(true) {
+                            currentPosition = exoPlayer.currentPosition
+                            delay(1000)
+                        }
+                    }
+                    val videoFormat = exoPlayer.videoFormat
+                    val width = videoFormat?.width ?: 1920
+                    val height = videoFormat?.height ?: 1080
+                    val resolution = if (width > 0) "${width}x${height}" else "1920x1080"
+                    val isHD = if (width >= 1280) " (HD)" else ""
+                    val bitrateKbps = videoFormat?.bitrate?.takeIf { it > 0 }?.let { it / 1000 } ?: 3200
+                    val dataConsumedMB = (bitrateKbps * (currentPosition / 1000f)) / 8192f
+                    
+                    Box(modifier = Modifier.padding(16.dp).statusBarsPadding().align(Alignment.CenterStart).background(Color.Black.copy(alpha=0.8f), RoundedCornerShape(12.dp)).border(1.dp, Color.White.copy(alpha=0.1f), RoundedCornerShape(12.dp)).padding(16.dp).widthIn(min = 280.dp)) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Info, contentDescription="Stats", tint = Color.Red, modifier=Modifier.size(12.dp))
-                                Spacer(Modifier.width(4.dp))
-                                Text("STATS FOR NERDS", color=Color.White, fontSize=10.sp, fontWeight=FontWeight.Bold)
+                                Text("STATS FOR NERDS", color=Color.White, fontSize=10.sp, fontWeight=FontWeight.Bold, letterSpacing = 2.sp)
                             }
                             Spacer(Modifier.height(8.dp))
-                            Text("Resolution: 1920x1080 (HD)", color=Color.Green, fontSize=9.sp)
-                            Text("Buffer Length: 2.4s", color=Color(0xFFFFC107), fontSize=9.sp)
-                            Text("Network: ${exoPlayer.videoFormat?.bitrate?.let { it / 1000 } ?: "3200"} kbps", color=Color(0xFF3B82F6), fontSize=9.sp)
-                            Text("Codec: ${exoPlayer.videoFormat?.codecs ?: "avc1, mp4a"}", color=Color.White, fontSize=9.sp)
+                            Text("Resolution: $resolution$isHD", color=Color.White, fontSize=11.sp)
+                            Text("Data Consumed: ${String.format("%.1f", dataConsumedMB)} MB", color=Color.White, fontSize=11.sp)
+                            Text("Network: $bitrateKbps kbps", color=Color.White, fontSize=11.sp)
+                            Text("Quality: Auto Mode", color=Color.White, fontSize=11.sp)
                         }
                     }
                 }
@@ -806,14 +885,15 @@ fun VideoPlayerScreen(
             }
         }
         
-        // Channel Info Area
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
+        if (!isLandscape) {
+            // Channel Info Area
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.background(Color.Red.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
                     Text("LIVE", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
@@ -876,23 +956,11 @@ fun VideoPlayerScreen(
             
             Spacer(Modifier.height(32.dp))
             // Player Footer
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                    .padding(16.dp)
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text("TELEGRAM", color = Color(0xFF3B82F6), fontSize = 10.sp, fontWeight = FontWeight.Black, modifier = Modifier.clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) })
-                        Text("@NIKKK.EXE", color = Color(0xFF10B981), fontSize = 10.sp, fontWeight = FontWeight.Black, modifier = Modifier.clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) })
-                    }
-                    Text("adfree by Nikshep", color = Color.Gray, fontSize = 9.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
-                }
-            }
-        }
-    }
-}
+            Footer()
+        } // End of inner Column
+        } // End of if
+    } // End of outer Column
+} // End of VideoPlayerScreen
 
 fun parseM3U(content: String): List<M3UItem> {
     val items = mutableListOf<M3UItem>()
