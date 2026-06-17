@@ -212,6 +212,7 @@ fun ZestyyApp(isDarkTheme: Boolean, onThemeToggle: () -> Unit, onOrientationChan
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(
     channels: List<M3UItem>,
@@ -711,6 +712,7 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun VideoPlayerScreen(
     channel: M3UItem, 
