@@ -722,6 +722,7 @@ fun VideoPlayerScreen(
     var isBuffering by remember { mutableStateOf(true) }
     var showJoinPopup by remember { mutableStateOf(true) }
 
+    val bandwidthMeter = remember { androidx.media3.exoplayer.upstream.DefaultBandwidthMeter.Builder(context).build() }
     val exoPlayer = remember {
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -734,6 +735,7 @@ fun VideoPlayerScreen(
             .build()
         ExoPlayer.Builder(context)
             .setLoadControl(loadControl)
+            .setBandwidthMeter(bandwidthMeter)
             .build()
     }
 
@@ -802,13 +804,22 @@ fun VideoPlayerScreen(
         ) {
             AndroidView(
                 factory = {
-                    PlayerView(context).apply {
+                    val viewStyle = android.view.LayoutInflater.from(context).inflate(R.layout.exo_texture_view, null, false) as androidx.media3.ui.PlayerView
+                    viewStyle.apply {
                         player = exoPlayer
                         useController = false
+                        isClickable = false
+                        isFocusable = false
+                        setOnTouchListener { _, _ -> true } // Consume touch so ExoPlayer won't pause on tap
                         layoutParams = android.view.ViewGroup.LayoutParams(
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT
                         )
+                    }
+                },
+                update = { view ->
+                    if (view.player != exoPlayer) {
+                        view.player = exoPlayer
                     }
                 },
                 modifier = Modifier.fillMaxSize()
@@ -863,9 +874,13 @@ fun VideoPlayerScreen(
                 
                 if (showStatsForNerds) {
                     var currentPosition by remember { mutableStateOf(0L) }
+                    var currentBuffer by remember { mutableStateOf(0L) }
+                    var networkBwKbps by remember { mutableStateOf(0L) }
                     LaunchedEffect(Unit) {
                         while(true) {
                             currentPosition = exoPlayer.currentPosition
+                            currentBuffer = exoPlayer.bufferedPosition
+                            networkBwKbps = bandwidthMeter.bitrateEstimate / 8192L // estimate as KB/s
                             delay(1000)
                         }
                     }
@@ -874,8 +889,9 @@ fun VideoPlayerScreen(
                     val height = videoFormat?.height ?: 1080
                     val resolution = if (width > 0) "${width}x${height}" else "1920x1080"
                     val isHD = if (width >= 1280) " (HD)" else ""
-                    val bitrateKbps = videoFormat?.bitrate?.takeIf { it > 0 }?.let { it / 1000 } ?: 3200
-                    val dataConsumedMB = (bitrateKbps * (currentPosition / 1000f)) / 8192f
+                    val knownBitrate = videoFormat?.bitrate?.takeIf { it > 0 }?.let { it / 1000 } ?: 0
+                    val displayBitrateKbps = if (knownBitrate > 0) knownBitrate.toLong() else networkBwKbps
+                    val dataConsumedMB = (displayBitrateKbps * (currentPosition / 1000f)) / 8192f
                     
                     Box(modifier = Modifier.padding(16.dp).statusBarsPadding().align(Alignment.TopStart).background(Color.Black.copy(alpha=0.8f)).border(1.dp, Color.White.copy(alpha=0.2f)).padding(16.dp).widthIn(min = 320.dp)) {
                         Column {
@@ -897,13 +913,18 @@ fun VideoPlayerScreen(
                             }
                             Spacer(Modifier.height(4.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Data Consumed", color=Color.White.copy(alpha=0.7f), fontSize=10.sp)
+                                Text("${String.format("%.1f", dataConsumedMB)} MB", color=Color.White, fontSize=10.sp)
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("Network Activity", color=Color.White.copy(alpha=0.7f), fontSize=10.sp)
-                                Text("$bitrateKbps KB/s", color=Color.White, fontSize=10.sp)
+                                Text("$networkBwKbps KB/s", color=Color.White, fontSize=10.sp)
                             }
                             Spacer(Modifier.height(4.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("Buffer Health", color=Color.White.copy(alpha=0.7f), fontSize=10.sp)
-                                val bufferSecs = exoPlayer.bufferedPosition / 1000
+                                val bufferSecs = currentBuffer / 1000
                                 Text("${bufferSecs} s", color=Color.White, fontSize=10.sp)
                             }
                         }
