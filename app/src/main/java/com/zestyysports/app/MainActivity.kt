@@ -403,7 +403,7 @@ fun MainScreen(
                 } else {
                     val columns = 2
                     val chunkedList = filteredChannels.take(displayedItemCount).chunked(columns)
-                    items(chunkedList) { rowItems ->
+                    items(chunkedList, key = { rowItems -> rowItems.joinToString { it.id } }) { rowItems ->
                         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
                             rowItems.forEach { channel ->
                                 Box(modifier = Modifier.weight(1f)) {
@@ -981,7 +981,7 @@ fun VideoPlayerScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         flingBehavior = rememberSnapFlingBehavior(lazyListState)
                     ) {
-                        items(allChannels.take(20)) { ch ->
+                        items(allChannels.take(20), key = { it.id }) { ch ->
                             val isPlaying = ch.id == channel.id
                             Box(
                                 modifier = Modifier
@@ -1078,6 +1078,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "bounceClickScale"
     )
+    val currentOnClick by androidx.compose.runtime.rememberUpdatedState(onClick)
 
     this
         .graphicsLayer {
@@ -1092,7 +1093,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
                     isPressed = false
                 },
                 onTap = {
-                    onClick()
+                    currentOnClick()
                 }
             )
         }
@@ -1119,7 +1120,7 @@ fun parseM3U(content: String): List<M3UItem> {
                 currentName = parts[1].trim()
             }
         } else if (trimmed.isNotEmpty() && !trimmed.startsWith("#")) {
-            items.add(M3UItem(id = trimmed, name = currentName, logo = currentLogo, group = currentGroup, url = trimmed))
+            items.add(M3UItem(id = java.util.UUID.randomUUID().toString(), name = currentName, logo = currentLogo, group = currentGroup, url = trimmed))
             currentName = ""
             currentLogo = ""
             currentGroup = ""
