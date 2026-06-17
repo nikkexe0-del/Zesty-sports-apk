@@ -158,7 +158,7 @@ class MainActivity : ComponentActivity() {
                                 requestedOrientation = if (landscape) {
                                     ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                                 } else {
-                                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                    ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                                 }
                             }
                         )
@@ -557,6 +557,14 @@ fun Footer() {
             textAlign = TextAlign.Center,
             letterSpacing = (-0.5).sp
         )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            "Developed and maintained by SpeedNikk", 
+            color = Color.Gray.copy(alpha=0.6f), 
+            fontSize = 10.sp, 
+            fontWeight = FontWeight.Medium, 
+            textAlign = TextAlign.Center
+        )
         Spacer(Modifier.height(32.dp))
         
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -719,8 +727,8 @@ fun VideoPlayerScreen(
             .setBufferDurationsMs(
                 30000, // minBufferMs
                 60000, // maxBufferMs
-                30000,  // bufferForPlaybackMs
-                30000   // bufferForPlaybackAfterRebufferMs 
+                2500,  // bufferForPlaybackMs
+                5000   // bufferForPlaybackAfterRebufferMs 
             )
             .setBackBuffer(0, false)
             .build()
@@ -746,8 +754,10 @@ fun VideoPlayerScreen(
             .setConnectTimeoutMs(30000)
             .setReadTimeoutMs(30000)
             .setAllowCrossProtocolRedirects(true)
+        val mediaItem = MediaItem.fromUri(channel.url)
+            
         val mediaSource = androidx.media3.exoplayer.source.DefaultMediaSourceFactory(dataSourceFactory)
-            .createMediaSource(MediaItem.fromUri(channel.url))
+            .createMediaSource(mediaItem)
 
         exoPlayer.setMediaSource(mediaSource)
         exoPlayer.prepare()
@@ -788,7 +798,7 @@ fun VideoPlayerScreen(
             Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)
         }
         Box(
-            modifier = playerModifier.clickable { showControls = !showControls }
+            modifier = playerModifier
         ) {
             AndroidView(
                 factory = {
@@ -802,6 +812,18 @@ fun VideoPlayerScreen(
                     }
                 },
                 modifier = Modifier.fillMaxSize()
+            )
+
+            // Transparent overlay to catch ALL clicks and prevent ExoPlayer native clicks
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null
+                    ) { 
+                        showControls = !showControls 
+                    }
             )
 
             if (isBuffering) {
@@ -855,16 +877,35 @@ fun VideoPlayerScreen(
                     val bitrateKbps = videoFormat?.bitrate?.takeIf { it > 0 }?.let { it / 1000 } ?: 3200
                     val dataConsumedMB = (bitrateKbps * (currentPosition / 1000f)) / 8192f
                     
-                    Box(modifier = Modifier.padding(16.dp).statusBarsPadding().align(Alignment.CenterStart).background(Color.Black.copy(alpha=0.8f), RoundedCornerShape(12.dp)).border(1.dp, Color.White.copy(alpha=0.1f), RoundedCornerShape(12.dp)).padding(16.dp).widthIn(min = 280.dp)) {
+                    Box(modifier = Modifier.padding(16.dp).statusBarsPadding().align(Alignment.TopStart).background(Color.Black.copy(alpha=0.8f)).border(1.dp, Color.White.copy(alpha=0.2f)).padding(16.dp).widthIn(min = 320.dp)) {
                         Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("STATS FOR NERDS", color=Color.White, fontSize=10.sp, fontWeight=FontWeight.Bold, letterSpacing = 2.sp)
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("Stats for nerds", color=Color.White, fontSize=12.sp, fontWeight=FontWeight.Bold)
+                                IconButton(onClick = { showStatsForNerds = false }, modifier = Modifier.size(24.dp)) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Close Stats", tint = Color.White, modifier = Modifier.size(16.dp))
+                                }
                             }
-                            Spacer(Modifier.height(8.dp))
-                            Text("Resolution: $resolution$isHD", color=Color.White, fontSize=11.sp)
-                            Text("Data Consumed: ${String.format("%.1f", dataConsumedMB)} MB", color=Color.White, fontSize=11.sp)
-                            Text("Network: $bitrateKbps kbps", color=Color.White, fontSize=11.sp)
-                            Text("Quality: Auto Mode", color=Color.White, fontSize=11.sp)
+                            Spacer(Modifier.height(12.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Video ID / sCPN", color=Color.White.copy(alpha=0.7f), fontSize=10.sp)
+                                Text("hx1-2k0 / zesty", color=Color.White, fontSize=10.sp)
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Resolution", color=Color.White.copy(alpha=0.7f), fontSize=10.sp)
+                                Text("$resolution$isHD", color=Color.White, fontSize=10.sp)
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Network Activity", color=Color.White.copy(alpha=0.7f), fontSize=10.sp)
+                                Text("$bitrateKbps KB/s", color=Color.White, fontSize=10.sp)
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Buffer Health", color=Color.White.copy(alpha=0.7f), fontSize=10.sp)
+                                val bufferSecs = exoPlayer.bufferedPosition / 1000
+                                Text("${bufferSecs} s", color=Color.White, fontSize=10.sp)
+                            }
                         }
                     }
                 }
@@ -903,51 +944,65 @@ fun VideoPlayerScreen(
                         )
                     }
 
-                    // Top Right: Duration
-                    Row(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).then(if (isLandscape) Modifier.statusBarsPadding() else Modifier), verticalAlignment = Alignment.CenterVertically) {
-                        val seconds = (streamDuration / 1000) % 60
-                        val minutes = (streamDuration / (1000 * 60)) % 60
-                        val hours = (streamDuration / (1000 * 60 * 60))
-                        val timeString = if (hours > 0) String.format("%d:%02d:%02d", hours, minutes, seconds) else String.format("%02d:%02d", minutes, seconds)
-                        Box(modifier = Modifier.background(Color(0xFFFF3B30).copy(alpha=0.2f), RoundedCornerShape(50)).border(1.dp, Color(0xFFFF3B30).copy(alpha=0.5f), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.size(6.dp).background(Color(0xFFFF3B30), CircleShape))
-                                Spacer(Modifier.width(6.dp))
-                                Text(timeString, color = Color(0xFFFF3B30), fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    // Bottom Controls
+                    Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha=0.8f))))) {
+                        Column {
+                            // Red line progress bar logic
+                            Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(Color.White.copy(alpha=0.2f))) {
+                                Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(Color(0xFFFF0000))) // Live stream implies full buffer
                             }
-                        }
-                    }
+                            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).then(if (isLandscape) Modifier.navigationBarsPadding() else Modifier), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    // Play/Pause
+                                    IconButton(
+                                        onClick = { 
+                                            if (isPlaying) exoPlayer.pause() else exoPlayer.play()
+                                            isPlaying = !isPlaying
+                                        }, 
+                                        modifier = Modifier.size(36.dp)
+                                    ) {
+                                        Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
+                                    }
+                                    Spacer(Modifier.width(16.dp))
+                                    // Volume Mute
+                                    IconButton(
+                                        onClick = { 
+                                            isMuted = !isMuted
+                                            exoPlayer.volume = if (isMuted) 0f else 1f
+                                        },
+                                        modifier = Modifier.size(36.dp)
+                                    ) {
+                                        Icon(if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp, contentDescription = "Mute Toggle", tint = Color.White)
+                                    }
+                                    Spacer(Modifier.width(16.dp))
+                                    // Duration / Live in red
+                                    val seconds = (streamDuration / 1000) % 60
+                                    val minutes = (streamDuration / (1000 * 60)) % 60
+                                    val hours = (streamDuration / (1000 * 60 * 60))
+                                    val timeString = if (hours > 0) String.format("%d:%02d:%02d", hours, minutes, seconds) else String.format("%02d:%02d", minutes, seconds)
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(modifier = Modifier.size(6.dp).background(Color(0xFFFF3B30), CircleShape))
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(timeString, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("LIVE", color = Color.White.copy(alpha=0.6f), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
 
-                    // Play/Pause Center
-                    IconButton(
-                        onClick = { 
-                            if (isPlaying) exoPlayer.pause() else exoPlayer.play()
-                            isPlaying = !isPlaying
-                        }, 
-                        modifier = Modifier.align(Alignment.Center).background(Color.Black.copy(alpha=0.5f), CircleShape).size(64.dp)
-                    ) {
-                        Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
-                    }
-                    
-                    // Bottom Right: Fullscreen, Stats, Mute
-                    Row(
-                        modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { 
-                            isMuted = !isMuted
-                            exoPlayer.volume = if (isMuted) 0f else 1f
-                        }) {
-                            Icon(if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp, contentDescription = "Mute Toggle", tint = Color.White)
-                        }
-                        IconButton(onClick = { showStatsForNerds = !showStatsForNerds }) {
-                            Icon(Icons.Default.Info, contentDescription = "Stats", tint = Color.White)
-                        }
-                        IconButton(onClick = { /* Settings Placeholder */ }) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
-                        }
-                        IconButton(onClick = { onOrientationChange(!isLandscape) }) {
-                            Icon(if (isLandscape) Icons.Default.FullscreenExit else Icons.Default.Fullscreen, contentDescription = "Fullscreen", tint = Color.White)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    IconButton(onClick = { showStatsForNerds = !showStatsForNerds }, modifier = Modifier.size(36.dp)) {
+                                        Icon(Icons.Default.Info, contentDescription = "Stats", tint = Color.White)
+                                    }
+                                    Spacer(Modifier.width(8.dp))
+                                    IconButton(onClick = { /* Settings Placeholder */ }, modifier = Modifier.size(36.dp)) {
+                                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                                    }
+                                    Spacer(Modifier.width(8.dp))
+                                    IconButton(onClick = { onOrientationChange(!isLandscape) }, modifier = Modifier.size(36.dp)) {
+                                        Icon(if (isLandscape) Icons.Default.FullscreenExit else Icons.Default.Fullscreen, contentDescription = "Fullscreen", tint = Color.White)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
