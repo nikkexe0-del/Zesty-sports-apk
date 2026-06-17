@@ -21,6 +21,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -291,130 +295,143 @@ fun MainScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
-        val scrollState = rememberScrollState()
-        Column(
+        val listState = rememberLazyListState()
+        LazyColumn(
+            state = listState,
             modifier = Modifier
-                .padding(padding)
                 .fillMaxSize()
-                .statusBarsPadding()
-                .verticalScroll(scrollState)
+                .padding(padding)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            // Hero Section
-            HeroSection()
+            item {
+                // Hero Section
+                HeroSection()
+            }
 
             if (currentTab == "search") {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    placeholder = { Text("Search channels...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Red,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.surface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                item {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        placeholder = { Text("Search channels...") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.Red,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.surface,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        )
                     )
-                )
+                }
             }
 
             if (currentTab == "home") {
-                LazyRow(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(groups) { group ->
-                        val isSelected = activeGroup == group
-                        Button(
-                            onClick = { activeGroup = group },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isSelected) Color.Red else MaterialTheme.colorScheme.surface,
-                                contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                            ),
-                            shape = RoundedCornerShape(50),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Text(group.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                item {
+                    LazyRow(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(groups) { group ->
+                            val isSelected = activeGroup == group
+                            Button(
+                                onClick = { activeGroup = group },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isSelected) Color.Red else MaterialTheme.colorScheme.surface,
+                                    contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                ),
+                                shape = RoundedCornerShape(50),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(group.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                            }
                         }
                     }
                 }
             }
 
             if (isLoading) {
-                Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color.Red)
+                item {
+                    Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.Red)
+                    }
                 }
             } else {
                 if (currentTab == "search" && searchQuery.isNotBlank()) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("SEARCH RESULTS", color = Color.Red, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Box(modifier = Modifier.weight(1f).height(1.dp).background(Color.Red.copy(alpha=0.1f)))
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text("${filteredChannels.size} FOUND", fontSize = 10.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
+                    item {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("SEARCH RESULTS", color = Color.Red, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Box(modifier = Modifier.weight(1f).height(1.dp).background(Color.Red.copy(alpha=0.1f)))
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text("${filteredChannels.size} FOUND", fontSize = 10.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
 
                 if (filteredChannels.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp)
-                            .border(2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("NO MATCHING CHANNELS.", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp)
+                                .border(2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("NO MATCHING CHANNELS.", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                        }
                     }
                 } else {
-                    // Non-scrollable Grid with pagination
-                    Column(Modifier.padding(horizontal = 12.dp)) {
-                        val columns = 2
-                        val chunkedList = filteredChannels.take(displayedItemCount).chunked(columns)
-                        chunkedList.forEach { rowItems ->
-                            Row(Modifier.fillMaxWidth()) {
-                                rowItems.forEach { channel ->
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        ChannelMiniCard(
-                                            channel = channel,
-                                            isFavorite = favorites.contains(channel.id),
-                                            onToggleFavorite = { id ->
-                                                favorites = if (favorites.contains(id)) favorites - id else favorites + id
-                                            },
-                                            onPlay = onPlay
-                                        )
-                                    }
-                                }
-                                if (rowItems.size < columns) {
-                                    Box(modifier = Modifier.weight(1f)) // spacer
+                    val columns = 2
+                    val chunkedList = filteredChannels.take(displayedItemCount).chunked(columns)
+                    items(chunkedList) { rowItems ->
+                        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+                            rowItems.forEach { channel ->
+                                Box(modifier = Modifier.weight(1f)) {
+                                    ChannelMiniCard(
+                                        channel = channel,
+                                        isFavorite = favorites.contains(channel.id),
+                                        onToggleFavorite = { id ->
+                                            favorites = if (favorites.contains(id)) favorites - id else favorites + id
+                                        },
+                                        onPlay = onPlay
+                                    )
                                 }
                             }
+                            if (rowItems.size < columns) {
+                                Box(modifier = Modifier.weight(1f)) // spacer
+                            }
                         }
-                        
-                        if (filteredChannels.size > displayedItemCount) {
-                            Spacer(Modifier.height(16.dp))
-                            Button(
-                                onClick = { displayedItemCount += 20 },
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text("SHOW MORE", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Black, fontSize = 12.sp, letterSpacing = 1.sp)
+                    }
+                    
+                    if (filteredChannels.size > displayedItemCount) {
+                        item {
+                            Column(Modifier.padding(horizontal = 12.dp)) {
+                                Spacer(Modifier.height(16.dp))
+                                Button(
+                                    onClick = { displayedItemCount += 20 },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("SHOW MORE", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Black, fontSize = 12.sp, letterSpacing = 1.sp)
+                                }
                             }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Footer()
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Footer()
+            }
         }
     }
 }
@@ -426,7 +443,7 @@ fun HeroSection() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .height(240.dp)
+            .height(180.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Brush.linearGradient(listOf(Color(0xFF111111), Color.Black)))
     ) {
@@ -671,40 +688,40 @@ fun VideoPlayerScreen(
     onChannelSelect: (M3UItem) -> Unit
 ) {
     val context = LocalContext.current
-    val sharedPrefs = remember { context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE) }
-    
-    var bufferCountdown by remember { mutableStateOf(5) }
-    var isUnlocked by remember { mutableStateOf(sharedPrefs.getBoolean("zesty_unlocked", false)) }
-    var previewSeconds by remember { mutableStateOf(120) }
-    var unlockCode by remember { mutableStateOf("") }
     var showStatsForNerds by remember { mutableStateOf(false) }
+    var isBuffering by remember { mutableStateOf(true) }
+    var showJoinPopup by remember { mutableStateOf(true) }
 
     val exoPlayer = remember {
-        ExoPlayer.Builder(context).build()
+        val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
+            .setBackBuffer(0, false)
+            .build()
+        ExoPlayer.Builder(context).setLoadControl(loadControl).build()
+    }
+
+    DisposableEffect(exoPlayer) {
+        val listener = object : androidx.media3.common.Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                isBuffering = playbackState == androidx.media3.common.Player.STATE_BUFFERING
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose { exoPlayer.removeListener(listener) }
     }
 
     LaunchedEffect(channel) {
-        bufferCountdown = 5
-        previewSeconds = 120
         showStatsForNerds = false
+        showJoinPopup = true
         val mediaItem = MediaItem.fromUri(channel.url)
         exoPlayer.setMediaItem(mediaItem)
         exoPlayer.prepare()
-        exoPlayer.playWhenReady = true
+        exoPlayer.playWhenReady = false
     }
 
-    LaunchedEffect(bufferCountdown) {
-        if (bufferCountdown > 0) {
-            delay(1000)
-            bufferCountdown--
-        }
-    }
-
-    LaunchedEffect(isUnlocked, previewSeconds) {
-        if (!isUnlocked && previewSeconds > 0) {
-            delay(1000)
-            previewSeconds--
-        } else if (!isUnlocked && previewSeconds == 0) {
+    LaunchedEffect(showJoinPopup) {
+        if (!showJoinPopup) {
+            exoPlayer.play()
+        } else {
             exoPlayer.pause()
         }
     }
@@ -718,14 +735,6 @@ fun VideoPlayerScreen(
 
     BackHandler {
         onBack()
-    }
-
-    val handleUnlock = { 
-        if (unlockCode.trim().lowercase() == "nikkiboss") {
-            isUnlocked = true
-            sharedPrefs.edit().putBoolean("zesty_unlocked", true).apply()
-            exoPlayer.play()
-        }
     }
 
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
@@ -767,70 +776,26 @@ fun VideoPlayerScreen(
                 modifier = Modifier.fillMaxSize()
             )
 
-            // 5 seconds pseudo-buffer 
-            if (bufferCountdown > 0) {
+            if (isBuffering) {
                 Box(
-                    modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.9f)),
+                    modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.6f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(color = Color.Red, modifier = Modifier.size(32.dp))
-                        Spacer(Modifier.height(16.dp))
-                        Text("Your stream is right here", color = Color.Red, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)
-                        Spacer(Modifier.height(8.dp))
-                        Text(text = "${bufferCountdown}s", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black)
-                    }
-                }
-            } else if (!isUnlocked && previewSeconds == 0) {
-                // 2 Minute Lock Screen
-                Box(
-                    modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.85f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(16.dp).background(Color(0xFF141414), RoundedCornerShape(12.dp)).padding(16.dp)
-                    ) {
-                        Text("PREVIEW ENDED", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
-                        Spacer(Modifier.height(8.dp))
-                        Text("Access premium channels by unlocking with the code from @SPEEDNIKK.", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
-                        Spacer(Modifier.height(16.dp))
-                        OutlinedTextField(
-                            value = unlockCode,
-                            onValueChange = { unlockCode = it },
-                            placeholder = { Text("Code...") },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.Red,
-                                unfocusedBorderColor = Color.Gray,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            ),
-                            modifier = Modifier.height(50.dp)
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Button(
-                            onClick = handleUnlock,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("PROCEED", fontWeight = FontWeight.Black, letterSpacing = 1.sp)
-                        }
-                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.zestyy_logo),
+                        contentDescription = "Buffering",
+                        modifier = Modifier.height(48.dp)
+                    )
                 }
             } else {
-                // Watermark & Countdown
+                // Watermark
                 Box(modifier = Modifier.matchParentSize().padding(16.dp).then(if (isLandscape) Modifier.statusBarsPadding() else Modifier), contentAlignment = Alignment.TopEnd) {
-                    Column(horizontalAlignment = Alignment.End) {
-                         Image(
-                             painter = painterResource(id = R.drawable.zestyy_logo),
-                             contentDescription = "Watermark",
-                             modifier = Modifier.height(14.dp),
-                             alpha = 0.4f
-                         )
-                         if (!isUnlocked) {
-                             Text(text = "${previewSeconds / 60}:${String.format("%02d", previewSeconds % 60)}", color=Color.White.copy(alpha=0.4f), fontSize=12.sp, fontWeight=FontWeight.Bold)
-                         }
-                    }
+                     Image(
+                         painter = painterResource(id = R.drawable.zestyy_logo),
+                         contentDescription = "Watermark",
+                         modifier = Modifier.height(48.dp),
+                         alpha = 0.6f
+                     )
                 }
                 
                 if (showStatsForNerds) {
@@ -865,11 +830,73 @@ fun VideoPlayerScreen(
             }
 
             // Custom Controller Overlay
-            if (showControls && bufferCountdown <= 0 && (isUnlocked || previewSeconds > 0)) {
+            if (showControls) {
                 var isPlaying by remember { mutableStateOf(exoPlayer.isPlaying) }
+                val activity = context as? android.app.Activity
+                var brightness by remember { mutableStateOf(activity?.window?.attributes?.screenBrightness?.takeIf{ it >= 0f } ?: 0.5f) }
+                var volume by remember { mutableStateOf(exoPlayer.volume) }
+                
                 Box(
                     modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.4f))
                 ) {
+                    // Top Left: Back & Channel Name
+                    Row(modifier = Modifier.align(Alignment.TopStart).padding(8.dp).then(if (isLandscape) Modifier.statusBarsPadding() else Modifier), verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = channel.name, 
+                            color = Color.White, 
+                            fontSize = 16.sp, 
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
+
+                    // Brightness (Left Side)
+                    Row(modifier = Modifier.align(Alignment.CenterStart).padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.BrightnessMedium, contentDescription="Brightness", tint=Color.White, modifier=Modifier.size(24.dp))
+                        Box(modifier = Modifier.width(48.dp).height(120.dp), contentAlignment = Alignment.Center) {
+                            androidx.compose.material3.Slider(
+                                value = brightness,
+                                onValueChange = { 
+                                    brightness = it
+                                    activity?.window?.let { window ->
+                                        val layoutParams = window.attributes
+                                        layoutParams.screenBrightness = it
+                                        window.attributes = layoutParams
+                                    }
+                                },
+                                valueRange = 0.05f..1f,
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .graphicsLayer { rotationZ = -90f },
+                                colors = androidx.compose.material3.SliderDefaults.colors(thumbColor = Color.White, activeTrackColor = Color.Red, inactiveTrackColor = Color.White.copy(alpha=0.3f))
+                            )
+                        }
+                    }
+
+                    // Volume (Right Side)
+                    Row(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.width(48.dp).height(120.dp), contentAlignment = Alignment.Center) {
+                            androidx.compose.material3.Slider(
+                                value = volume,
+                                onValueChange = { 
+                                    volume = it
+                                    exoPlayer.volume = it
+                                },
+                                valueRange = 0f..1f,
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .graphicsLayer { rotationZ = -90f },
+                                colors = androidx.compose.material3.SliderDefaults.colors(thumbColor = Color.White, activeTrackColor = Color.Red, inactiveTrackColor = Color.White.copy(alpha=0.3f))
+                            )
+                        }
+                        Icon(Icons.Default.VolumeUp, contentDescription="Volume", tint=Color.White, modifier=Modifier.size(24.dp))
+                    }
+
                     // Play/Pause Center
                     IconButton(
                         onClick = { 
@@ -881,18 +908,16 @@ fun VideoPlayerScreen(
                         Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
                     }
                     
-                    // Top Left: Back
-                    IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart).padding(8.dp).then(if (isLandscape) Modifier.statusBarsPadding() else Modifier)) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
-                    }
-                    
                     // Bottom Right: Fullscreen & Stats
                     Row(
                         modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = { showStatsForNerds = !showStatsForNerds }) {
-                            Icon(Icons.Default.Settings, contentDescription = "Stats", tint = Color.White)
+                            Icon(Icons.Default.Info, contentDescription = "Stats", tint = Color.White)
+                        }
+                        IconButton(onClick = { /* Settings Placeholder */ }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
                         }
                         IconButton(onClick = { onOrientationChange(!isLandscape) }) {
                             Icon(if (isLandscape) Icons.Default.FullscreenExit else Icons.Default.Fullscreen, contentDescription = "Fullscreen", tint = Color.White)
@@ -911,30 +936,42 @@ fun VideoPlayerScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.background(Color.Red.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
-                    Text("LIVE", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                var isFavorite by remember { mutableStateOf(context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE).getStringSet("zesty_favs", setOf())?.contains(channel.id) == true) }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = channel.name.uppercase(), 
+                        color = MaterialTheme.colorScheme.onBackground, 
+                        fontSize = 20.sp, 
+                        fontWeight = FontWeight.Black, 
+                        modifier = Modifier.weight(1f),
+                        maxLines = 2,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(modifier = Modifier.background(Color.Blue.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
+                            Text("AD-FREE", color = Color.Blue, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Box(modifier = Modifier.background(Color.Red.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
+                            Text("LIVE", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        }
+                        IconButton(onClick = { 
+                            val prefs = context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE)
+                            val favs = prefs.getStringSet("zesty_favs", setOf())?.toMutableSet() ?: mutableSetOf()
+                            if (favs.contains(channel.id)) {
+                                favs.remove(channel.id)
+                                isFavorite = false
+                            } else {
+                                favs.add(channel.id)
+                                isFavorite = true
+                            }
+                            prefs.edit().putStringSet("zesty_favs", favs).apply()
+                        }, modifier = Modifier.size(32.dp)) {
+                            Icon(if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Favorite", tint = if (isFavorite) Color.Red else Color.Gray)
+                        }
+                    }
                 }
-                Spacer(Modifier.width(8.dp))
-                Text("${channel.group} · ULTRA HD".uppercase(), color = Color.Gray, fontSize = 9.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
-                Spacer(Modifier.weight(1f))
-                Button(
-                    onClick = { showStatsForNerds = !showStatsForNerds },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                    modifier = Modifier.height(24.dp)
-                ) {
-                    Text("STATS", fontSize = 8.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
-                }
-            }
-            Spacer(Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(channel.name.uppercase(), color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Black)
-                Spacer(Modifier.width(12.dp))
-                Box(modifier = Modifier.background(Color.Blue.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
-                    Text("Ad-Free", color = Color.Blue, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
-                }
-            }
 
             Spacer(Modifier.height(24.dp))
             Text("MORE CHANNELS", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
@@ -977,6 +1014,51 @@ fun VideoPlayerScreen(
         } // End of inner Column
         } // End of if
     } // End of outer Column
+
+    var showJoinPopup by remember { mutableStateOf(true) }
+    if (showJoinPopup && !isLandscape) {
+        androidx.compose.ui.window.Dialog(onDismissRequest = { showJoinPopup = false }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF141414), RoundedCornerShape(16.dp))
+                    .border(1.dp, Color.White.copy(alpha=0.1f), RoundedCornerShape(16.dp))
+                    .padding(24.dp)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(painterResource(id = R.drawable.zestyy_logo), contentDescription = null, modifier = Modifier.height(32.dp))
+                    Spacer(Modifier.height(16.dp))
+                    Text("JOIN TELEGRAM", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                    Spacer(Modifier.height(8.dp))
+                    Text("Join our official Telegram group for updates, support, and to request channels. Also, visit ZestyyFlix for movies!", color = Color.LightGray, fontSize = 12.sp, textAlign = TextAlign.Center)
+                    Spacer(Modifier.height(24.dp))
+                    
+                    // Bento style
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))).clickable{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.Send, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
+                                Spacer(Modifier.height(8.dp))
+                                Text("OPEN TELEGRAM", fontSize=12.sp, fontWeight=FontWeight.Black, color=Color.White, textAlign = TextAlign.Center)
+                            }
+                        }
+                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF)))).clickable{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app/"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.Movie, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
+                                Spacer(Modifier.height(8.dp))
+                                Text("VISIT ZESTYYFLIX", fontSize=12.sp, fontWeight=FontWeight.Black, color=Color.White, textAlign = TextAlign.Center)
+                            }
+                        }
+                    }
+                    
+                    Spacer(Modifier.height(24.dp))
+                    Button(onClick = { showJoinPopup = false }, modifier = Modifier.fillMaxWidth().height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface), shape = RoundedCornerShape(12.dp)) {
+                        Text("CLOSE & WATCH STREAM", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
 } // End of VideoPlayerScreen
 
 fun parseM3U(content: String): List<M3UItem> {
