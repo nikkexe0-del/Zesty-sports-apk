@@ -98,36 +98,37 @@ class MainActivity : ComponentActivity() {
 
             val colorScheme = if (isDarkTheme.value) {
                 darkColorScheme(
-                    background = Color(0xFF0A0A0A),
-                    surface = Color(0xFF141414),
-                    onBackground = Color.White,
-                    onSurface = Color.White
+                    background = Color(0xFF0F1014),
+                    surface = Color(0xFF16181F),
+                    onBackground = Color(0xFFFFFFFF),
+                    onSurface = Color(0xFFE1E6F0)
                 )
             } else {
                 lightColorScheme(
-                    background = Color(0xFFF5F5F5),
+                    background = Color(0xFFF5F5F7),
                     surface = Color.White,
-                    onBackground = Color(0xFF171717),
-                    onSurface = Color(0xFF171717)
+                    onBackground = Color(0xFF1D1D1F),
+                    onSurface = Color(0xFF1D1D1F)
                 )
             }
 
+            val sfLetterSpacing = (-0.5).sp
             val typography = Typography(
-                displayLarge = androidx.compose.material3.Typography().displayLarge.copy(fontFamily = InterFontFamily),
-                displayMedium = androidx.compose.material3.Typography().displayMedium.copy(fontFamily = InterFontFamily),
-                displaySmall = androidx.compose.material3.Typography().displaySmall.copy(fontFamily = InterFontFamily),
-                headlineLarge = androidx.compose.material3.Typography().headlineLarge.copy(fontFamily = InterFontFamily),
-                headlineMedium = androidx.compose.material3.Typography().headlineMedium.copy(fontFamily = InterFontFamily),
-                headlineSmall = androidx.compose.material3.Typography().headlineSmall.copy(fontFamily = InterFontFamily),
-                titleLarge = androidx.compose.material3.Typography().titleLarge.copy(fontFamily = InterFontFamily),
-                titleMedium = androidx.compose.material3.Typography().titleMedium.copy(fontFamily = InterFontFamily),
-                titleSmall = androidx.compose.material3.Typography().titleSmall.copy(fontFamily = InterFontFamily),
-                bodyLarge = androidx.compose.material3.Typography().bodyLarge.copy(fontFamily = InterFontFamily),
-                bodyMedium = androidx.compose.material3.Typography().bodyMedium.copy(fontFamily = InterFontFamily),
-                bodySmall = androidx.compose.material3.Typography().bodySmall.copy(fontFamily = InterFontFamily),
-                labelLarge = androidx.compose.material3.Typography().labelLarge.copy(fontFamily = InterFontFamily),
-                labelMedium = androidx.compose.material3.Typography().labelMedium.copy(fontFamily = InterFontFamily),
-                labelSmall = androidx.compose.material3.Typography().labelSmall.copy(fontFamily = InterFontFamily)
+                displayLarge = androidx.compose.material3.Typography().displayLarge.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                displayMedium = androidx.compose.material3.Typography().displayMedium.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                displaySmall = androidx.compose.material3.Typography().displaySmall.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                headlineLarge = androidx.compose.material3.Typography().headlineLarge.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                headlineMedium = androidx.compose.material3.Typography().headlineMedium.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                headlineSmall = androidx.compose.material3.Typography().headlineSmall.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                titleLarge = androidx.compose.material3.Typography().titleLarge.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                titleMedium = androidx.compose.material3.Typography().titleMedium.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                titleSmall = androidx.compose.material3.Typography().titleSmall.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                bodyLarge = androidx.compose.material3.Typography().bodyLarge.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                bodyMedium = androidx.compose.material3.Typography().bodyMedium.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                bodySmall = androidx.compose.material3.Typography().bodySmall.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                labelLarge = androidx.compose.material3.Typography().labelLarge.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                labelMedium = androidx.compose.material3.Typography().labelMedium.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing),
+                labelSmall = androidx.compose.material3.Typography().labelSmall.copy(fontFamily = InterFontFamily, letterSpacing = sfLetterSpacing)
             )
 
             MaterialTheme(colorScheme = colorScheme, typography = typography) {
@@ -523,62 +524,79 @@ fun Footer() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.surface))
-        Spacer(Modifier.height(24.dp))
         Image(
             painter = painterResource(id = R.drawable.zestyy_logo),
-            contentDescription = "Zesty Logo",
-            modifier = Modifier.height(24.dp)
+            contentDescription = "Zestyysports Logo",
+            modifier = Modifier.height(32.dp)
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             "Worldwide channels in HD, Ad-free, 4K — for free.", 
             color = Color.Gray, 
-            fontSize = 11.sp, 
-            fontWeight = FontWeight.Bold, 
-            letterSpacing = 1.sp,
-            textAlign = TextAlign.Center
+            fontSize = 12.sp, 
+            fontWeight = FontWeight.Medium, 
+            textAlign = TextAlign.Center,
+            letterSpacing = (-0.5).sp
         )
-        Spacer(Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            // Telegram Gradient Button
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
-                    .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }
-                    .padding(horizontal=12.dp, vertical=8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("TELEGRAM", fontSize=9.sp, fontWeight=FontWeight.Black, color=Color.White)
-            }
-            
-            // Instagram Gradient Button
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Brush.horizontalGradient(listOf(Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF))))
-                    .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) }
-                    .padding(horizontal=12.dp, vertical=8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("@NIKKK.EXE", fontSize=9.sp, fontWeight=FontWeight.Black, color=Color.White)
-            }
-        }
-        Spacer(Modifier.height(12.dp))
-        Button(
-            onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface),
-            shape = RoundedCornerShape(8.dp),
-            contentPadding = PaddingValues(horizontal=12.dp, vertical=6.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha=0.2f))
+        Spacer(Modifier.height(32.dp))
+        
+        // Instagram
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Brush.horizontalGradient(listOf(Color(0xFFf09433), Color(0xFFe6683c), Color(0xFFdc2743), Color(0xFFcc2366), Color(0xFFbc1888))))
+                .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) }
+                .padding(vertical = 16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text("MORE FROM ZESTYY", fontSize=9.sp, fontWeight=FontWeight.Black)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Person, contentDescription=null, tint=Color.White, modifier=Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Connect on Instagram", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, letterSpacing = (-0.5).sp)
+            }
         }
-        Spacer(Modifier.height(24.dp))
+
+        Spacer(Modifier.height(12.dp))
+
+        // Telegram
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
+                .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }
+                .padding(vertical = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Send, contentDescription=null, tint=Color.White, modifier=Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Join on Telegram", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, letterSpacing = (-0.5).sp)
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // ZestyyFlix
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Brush.horizontalGradient(listOf(Color(0xFFE50914), Color(0xFFB81D24))))
+                .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) }
+                .padding(vertical = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Movie, contentDescription=null, tint=Color.White, modifier=Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("For premium movie experience", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, letterSpacing = (-0.5).sp)
+            }
+        }
     }
 }
 
@@ -834,8 +852,7 @@ fun VideoPlayerScreen(
             if (showControls) {
                 var isPlaying by remember { mutableStateOf(exoPlayer.isPlaying) }
                 val activity = context as? android.app.Activity
-                var brightness by remember { mutableStateOf(activity?.window?.attributes?.screenBrightness?.takeIf{ it >= 0f } ?: 0.5f) }
-                var volume by remember { mutableStateOf(exoPlayer.volume) }
+                var isMuted by remember { mutableStateOf(exoPlayer.volume == 0f) }
                 
                 Box(
                     modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.4f))
@@ -856,48 +873,6 @@ fun VideoPlayerScreen(
                         )
                     }
 
-                    // Brightness (Left Side)
-                    Row(modifier = Modifier.align(Alignment.CenterStart).padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.BrightnessMedium, contentDescription="Brightness", tint=Color.White, modifier=Modifier.size(24.dp))
-                        Box(modifier = Modifier.width(48.dp).height(120.dp), contentAlignment = Alignment.Center) {
-                            androidx.compose.material3.Slider(
-                                value = brightness,
-                                onValueChange = { 
-                                    brightness = it
-                                    activity?.window?.let { window ->
-                                        val layoutParams = window.attributes
-                                        layoutParams.screenBrightness = it
-                                        window.attributes = layoutParams
-                                    }
-                                },
-                                valueRange = 0.05f..1f,
-                                modifier = Modifier
-                                    .width(120.dp)
-                                    .graphicsLayer { rotationZ = -90f },
-                                colors = androidx.compose.material3.SliderDefaults.colors(thumbColor = Color.White, activeTrackColor = Color.Red, inactiveTrackColor = Color.White.copy(alpha=0.3f))
-                            )
-                        }
-                    }
-
-                    // Volume (Right Side)
-                    Row(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.width(48.dp).height(120.dp), contentAlignment = Alignment.Center) {
-                            androidx.compose.material3.Slider(
-                                value = volume,
-                                onValueChange = { 
-                                    volume = it
-                                    exoPlayer.volume = it
-                                },
-                                valueRange = 0f..1f,
-                                modifier = Modifier
-                                    .width(120.dp)
-                                    .graphicsLayer { rotationZ = -90f },
-                                colors = androidx.compose.material3.SliderDefaults.colors(thumbColor = Color.White, activeTrackColor = Color.Red, inactiveTrackColor = Color.White.copy(alpha=0.3f))
-                            )
-                        }
-                        Icon(Icons.Default.VolumeUp, contentDescription="Volume", tint=Color.White, modifier=Modifier.size(24.dp))
-                    }
-
                     // Play/Pause Center
                     IconButton(
                         onClick = { 
@@ -909,11 +884,17 @@ fun VideoPlayerScreen(
                         Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
                     }
                     
-                    // Bottom Right: Fullscreen & Stats
+                    // Bottom Right: Fullscreen, Stats, Mute
                     Row(
                         modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        IconButton(onClick = { 
+                            isMuted = !isMuted
+                            exoPlayer.volume = if (isMuted) 0f else 1f
+                        }) {
+                            Icon(if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp, contentDescription = "Mute Toggle", tint = Color.White)
+                        }
                         IconButton(onClick = { showStatsForNerds = !showStatsForNerds }) {
                             Icon(Icons.Default.Info, contentDescription = "Stats", tint = Color.White)
                         }
