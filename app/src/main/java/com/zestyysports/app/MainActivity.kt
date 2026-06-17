@@ -495,8 +495,8 @@ fun HeroSection() {
                 // Telegram Gradient Button
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(0xFF0A84FF).copy(alpha=0.15f))
                         .bounceClick { 
                             val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))
                             context.startActivity(i)
@@ -505,17 +505,17 @@ fun HeroSection() {
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Send, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color.White)
+                        Icon(Icons.Default.Send, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color(0xFF0A84FF))
                         Spacer(Modifier.width(4.dp))
-                        Text("TELEGRAM", fontSize=10.sp, fontWeight=FontWeight.Black, color=Color.White)
+                        Text("TELEGRAM", fontSize=10.sp, fontWeight=FontWeight.Bold, color=Color(0xFF0A84FF))
                     }
                 }
                 
                 // Instagram Gradient Button
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Brush.horizontalGradient(listOf(Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF))))
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(0xFF0A84FF).copy(alpha=0.15f))
                         .bounceClick { 
                             val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))
                             context.startActivity(i)
@@ -524,9 +524,9 @@ fun HeroSection() {
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Person, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color.White)
+                        Icon(Icons.Default.Person, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color(0xFF0A84FF))
                         Spacer(Modifier.width(4.dp))
-                        Text("@NIKKK.EXE", fontSize=10.sp, fontWeight=FontWeight.Black, color=Color.White)
+                        Text("@NIKKK.EXE", fontSize=10.sp, fontWeight=FontWeight.Bold, color=Color(0xFF0A84FF))
                     }
                 }
             }
@@ -559,58 +559,41 @@ fun Footer() {
         )
         Spacer(Modifier.height(32.dp))
         
-        // Instagram
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Brush.horizontalGradient(listOf(Color(0xFFf09433), Color(0xFFe6683c), Color(0xFFdc2743), Color(0xFFcc2366), Color(0xFFbc1888))))
-                .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) }
-                .padding(vertical = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Person, contentDescription=null, tint=Color.White, modifier=Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Connect on Instagram", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, letterSpacing = (-0.5).sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            // Instagram
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF0A84FF).copy(alpha=0.15f))
+                    .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Person, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(24.dp))
             }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        // Telegram
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
-                .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }
-                .padding(vertical = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Send, contentDescription=null, tint=Color.White, modifier=Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Join on Telegram", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, letterSpacing = (-0.5).sp)
+            
+            // Telegram
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF0A84FF).copy(alpha=0.15f))
+                    .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Send, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(24.dp))
             }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        // ZestyyFlix
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Brush.horizontalGradient(listOf(Color(0xFFE50914), Color(0xFFB81D24))))
-                .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) }
-                .padding(vertical = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Movie, contentDescription=null, tint=Color.White, modifier=Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("For premium movie experience", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, letterSpacing = (-0.5).sp)
+            
+            // ZestyyFlix
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF0A84FF).copy(alpha=0.15f))
+                    .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Movie, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(24.dp))
             }
         }
     }
@@ -734,10 +717,10 @@ fun VideoPlayerScreen(
     val exoPlayer = remember {
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
-                5000,  // minBufferMs (Wait only 5s before starting instead of 32s)
-                50000, // maxBufferMs
-                1000,  // bufferForPlaybackMs (Play quickly after 1s buffer)
-                2000   // bufferForPlaybackAfterRebufferMs 
+                30000, // minBufferMs
+                60000, // maxBufferMs
+                30000,  // bufferForPlaybackMs
+                30000   // bufferForPlaybackAfterRebufferMs 
             )
             .setBackBuffer(0, false)
             .build()
@@ -768,15 +751,7 @@ fun VideoPlayerScreen(
 
         exoPlayer.setMediaSource(mediaSource)
         exoPlayer.prepare()
-        exoPlayer.playWhenReady = false
-    }
-
-    LaunchedEffect(showJoinPopup) {
-        if (!showJoinPopup) {
-            exoPlayer.play()
-        } else {
-            exoPlayer.pause()
-        }
+        exoPlayer.playWhenReady = true
     }
 
     DisposableEffect(Unit) {
@@ -859,7 +834,7 @@ fun VideoPlayerScreen(
                      Image(
                          painter = painterResource(id = R.drawable.zestyy_logo),
                          contentDescription = "Watermark",
-                         modifier = Modifier.height(48.dp),
+                         modifier = Modifier.height(32.dp),
                          alpha = 0.6f
                      )
                 }
@@ -900,6 +875,14 @@ fun VideoPlayerScreen(
                 var isPlaying by remember { mutableStateOf(exoPlayer.isPlaying) }
                 val activity = context as? android.app.Activity
                 var isMuted by remember { mutableStateOf(exoPlayer.volume == 0f) }
+                var streamDuration by remember { mutableStateOf(0L) }
+                
+                LaunchedEffect(Unit) {
+                    while(true) {
+                         streamDuration = exoPlayer.currentPosition
+                         delay(1000)
+                    }
+                }
                 
                 Box(
                     modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha=0.4f))
@@ -918,6 +901,21 @@ fun VideoPlayerScreen(
                             maxLines = 1,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
+                    }
+
+                    // Top Right: Duration
+                    Row(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).then(if (isLandscape) Modifier.statusBarsPadding() else Modifier), verticalAlignment = Alignment.CenterVertically) {
+                        val seconds = (streamDuration / 1000) % 60
+                        val minutes = (streamDuration / (1000 * 60)) % 60
+                        val hours = (streamDuration / (1000 * 60 * 60))
+                        val timeString = if (hours > 0) String.format("%d:%02d:%02d", hours, minutes, seconds) else String.format("%02d:%02d", minutes, seconds)
+                        Box(modifier = Modifier.background(Color(0xFFFF3B30).copy(alpha=0.2f), RoundedCornerShape(50)).border(1.dp, Color(0xFFFF3B30).copy(alpha=0.5f), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(6.dp).background(Color(0xFFFF3B30), CircleShape))
+                                Spacer(Modifier.width(6.dp))
+                                Text(timeString, color = Color(0xFFFF3B30), fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            }
+                        }
                     }
 
                     // Play/Pause Center
@@ -1076,19 +1074,19 @@ fun VideoPlayerScreen(
                     Spacer(Modifier.height(24.dp))
                     
                     // Bento style
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.Send, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
-                                Spacer(Modifier.height(8.dp))
-                                Text("OPEN TELEGRAM", fontSize=12.sp, fontWeight=FontWeight.Black, color=Color.White, textAlign = TextAlign.Center)
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).background(Color(0xFF0A84FF).copy(alpha=0.15f)).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Send, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(20.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("OPEN TELEGRAM", fontSize=12.sp, fontWeight=FontWeight.Bold, color=Color(0xFF0A84FF))
                             }
                         }
-                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Brush.horizontalGradient(listOf(Color(0xFFE50914), Color(0xFFB81D24)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app/"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.Movie, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
-                                Spacer(Modifier.height(8.dp))
-                                Text("VISIT ZESTYYFLIX", fontSize=12.sp, fontWeight=FontWeight.Black, color=Color.White, textAlign = TextAlign.Center)
+                        Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).background(Color(0xFF0A84FF).copy(alpha=0.15f)).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app/"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Movie, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(20.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("VISIT ZESTYYFLIX", fontSize=12.sp, fontWeight=FontWeight.Bold, color=Color(0xFF0A84FF))
                             }
                         }
                     }
