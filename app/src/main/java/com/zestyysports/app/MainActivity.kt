@@ -10,6 +10,13 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -332,9 +339,12 @@ fun MainScreen(
 
             if (currentTab == "home") {
                 item {
+                    val groupListState = rememberLazyListState()
                     LazyRow(
+                        state = groupListState,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        flingBehavior = rememberSnapFlingBehavior(groupListState)
                     ) {
                         items(groups) { group ->
                             val isSelected = activeGroup == group
@@ -481,7 +491,7 @@ fun HeroSection() {
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
                         .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
-                        .clickable { 
+                        .bounceClick { 
                             val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))
                             context.startActivity(i)
                         }
@@ -500,7 +510,7 @@ fun HeroSection() {
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
                         .background(Brush.horizontalGradient(listOf(Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF))))
-                        .clickable { 
+                        .bounceClick { 
                             val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))
                             context.startActivity(i)
                         }
@@ -549,7 +559,7 @@ fun Footer() {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(Brush.horizontalGradient(listOf(Color(0xFFf09433), Color(0xFFe6683c), Color(0xFFdc2743), Color(0xFFcc2366), Color(0xFFbc1888))))
-                .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) }
+                .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) }
                 .padding(vertical = 16.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -568,7 +578,7 @@ fun Footer() {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF))))
-                .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }
+                .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }
                 .padding(vertical = 16.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -587,7 +597,7 @@ fun Footer() {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(Brush.horizontalGradient(listOf(Color(0xFFE50914), Color(0xFFB81D24))))
-                .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) }
+                .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) }
                 .padding(vertical = 16.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -606,7 +616,7 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
         modifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
-            .clickable { onPlay(channel) },
+            .bounceClick { onPlay(channel) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.1f))
@@ -622,7 +632,10 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
             ) {
                 if (channel.logo.isNotEmpty()) {
                     AsyncImage(
-                        model = channel.logo,
+                        model = coil.request.ImageRequest.Builder(LocalContext.current)
+                            .data(channel.logo)
+                            .crossfade(300)
+                            .build(),
                         contentDescription = channel.name,
                         contentScale = ContentScale.Inside,
                         modifier = Modifier.fillMaxSize().padding(8.dp)
@@ -642,7 +655,7 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
                         .align(Alignment.TopStart)
                         .padding(4.dp)
                         .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-                        .clickable { onToggleFavorite(channel.id) }
+                        .bounceClick { onToggleFavorite(channel.id) }
                         .padding(4.dp)
                 ) {
                     Icon(
@@ -911,89 +924,104 @@ fun VideoPlayerScreen(
         
         if (!isLandscape) {
             // Channel Info Area
-            Column(
-                Modifier
+            LazyColumn(
+                modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
             ) {
-                var isFavorite by remember { mutableStateOf(context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE).getStringSet("zesty_favs", setOf())?.contains(channel.id) == true) }
+                item {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        var isFavorite by remember { mutableStateOf(context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE).getStringSet("zesty_favs", setOf())?.contains(channel.id) == true) }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = channel.name.uppercase(), 
-                        color = MaterialTheme.colorScheme.onBackground, 
-                        fontSize = 20.sp, 
-                        fontWeight = FontWeight.Black, 
-                        modifier = Modifier.weight(1f),
-                        maxLines = 2,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Box(modifier = Modifier.background(Color.Blue.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
-                            Text("AD-FREE", color = Color.Blue, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Box(modifier = Modifier.background(Color.Red.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
-                            Text("LIVE", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        }
-                        IconButton(onClick = { 
-                            val prefs = context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE)
-                            val favs = prefs.getStringSet("zesty_favs", setOf())?.toMutableSet() ?: mutableSetOf()
-                            if (favs.contains(channel.id)) {
-                                favs.remove(channel.id)
-                                isFavorite = false
-                            } else {
-                                favs.add(channel.id)
-                                isFavorite = true
-                            }
-                            prefs.edit().putStringSet("zesty_favs", favs).apply()
-                        }, modifier = Modifier.size(32.dp)) {
-                            Icon(if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Favorite", tint = if (isFavorite) Color.Red else Color.Gray)
-                        }
-                    }
-                }
-
-            Spacer(Modifier.height(24.dp))
-            Text("MORE CHANNELS", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
-            Spacer(Modifier.height(8.dp))
-            
-            // Horizontal list
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(allChannels.take(20)) { ch ->
-                    val isPlaying = ch.id == channel.id
-                    Box(
-                        modifier = Modifier
-                            .width(140.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.surface)
-                            .border(if (isPlaying) 2.dp else 1.dp, if (isPlaying) Color.Red else Color.LightGray.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                            .clickable { onChannelSelect(ch) }
-                    ) {
-                        Column {
-                            Box(modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(16f / 9f)
-                                .background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
-                                if (ch.logo.isNotEmpty()) {
-                                    AsyncImage(model = ch.logo, contentDescription = ch.name, contentScale = ContentScale.Inside, modifier = Modifier.padding(12.dp))
-                                } else {
-                                    Text(ch.name.take(3).uppercase(), color = Color.Gray, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = channel.name.uppercase(), 
+                                color = MaterialTheme.colorScheme.onBackground, 
+                                fontSize = 20.sp, 
+                                fontWeight = FontWeight.Black, 
+                                modifier = Modifier.weight(1f),
+                                maxLines = 2,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Box(modifier = Modifier.background(Color.Blue.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
+                                    Text("AD-FREE", color = Color.Blue, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Box(modifier = Modifier.background(Color.Red.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
+                                    Text("LIVE", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
+                                IconButton(onClick = { 
+                                    val prefs = context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE)
+                                    val favs = prefs.getStringSet("zesty_favs", setOf())?.toMutableSet() ?: mutableSetOf()
+                                    if (favs.contains(channel.id)) {
+                                        favs.remove(channel.id)
+                                        isFavorite = false
+                                    } else {
+                                        favs.add(channel.id)
+                                        isFavorite = true
+                                    }
+                                    prefs.edit().putStringSet("zesty_favs", favs).apply()
+                                }, modifier = Modifier.size(32.dp)) {
+                                    Icon(if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Favorite", tint = if (isFavorite) Color.Red else Color.Gray)
                                 }
                             }
-                            Box(modifier = Modifier.fillMaxWidth().background(Color.Black).padding(6.dp), contentAlignment = Alignment.Center) {
-                                Text(ch.name, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+
+                    Spacer(Modifier.height(24.dp))
+                    Text("MORE CHANNELS", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                    Spacer(Modifier.height(8.dp))
+                    
+                    // Horizontal list
+                    val lazyListState = rememberLazyListState()
+                    LazyRow(
+                        state = lazyListState,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        flingBehavior = rememberSnapFlingBehavior(lazyListState)
+                    ) {
+                        items(allChannels.take(20)) { ch ->
+                            val isPlaying = ch.id == channel.id
+                            Box(
+                                modifier = Modifier
+                                    .width(140.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surface)
+                                    .border(if (isPlaying) 2.dp else 1.dp, if (isPlaying) Color.Red else Color.LightGray.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                                    .bounceClick { onChannelSelect(ch) }
+                            ) {
+                                Column {
+                                    Box(modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(16f / 9f)
+                                        .background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+                                        if (ch.logo.isNotEmpty()) {
+                                            AsyncImage(
+                                                model = coil.request.ImageRequest.Builder(LocalContext.current)
+                                                    .data(ch.logo)
+                                                    .crossfade(300)
+                                                    .build(),
+                                                contentDescription = ch.name,
+                                                contentScale = ContentScale.Inside,
+                                                modifier = Modifier.padding(12.dp)
+                                            )
+                                        } else {
+                                            Text(ch.name.take(3).uppercase(), color = Color.Gray, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                                        }
+                                    }
+                                    Box(modifier = Modifier.fillMaxWidth().background(Color.Black).padding(6.dp), contentAlignment = Alignment.Center) {
+                                        Text(ch.name, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-            
-            Spacer(Modifier.height(32.dp))
-            // Player Footer
-            Footer()
-        } // End of inner Column
+                    
+                    Spacer(Modifier.height(32.dp))
+                    // Player Footer
+                    Footer()
+                    } // End of inner Column
+                } // End of item
+            } // End of outer LazyColumn
         } // End of if
     } // End of outer Column
     if (showJoinPopup && !isLandscape) {
@@ -1015,14 +1043,14 @@ fun VideoPlayerScreen(
                     
                     // Bento style
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))).clickable{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.Send, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
                                 Spacer(Modifier.height(8.dp))
                                 Text("OPEN TELEGRAM", fontSize=12.sp, fontWeight=FontWeight.Black, color=Color.White, textAlign = TextAlign.Center)
                             }
                         }
-                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFFF58529), Color(0xFFDD2A7B), Color(0xFF8134AF)))).clickable{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app/"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFFE50914), Color(0xFFB81D24)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app/"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.Movie, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
                                 Spacer(Modifier.height(8.dp))
@@ -1040,6 +1068,33 @@ fun VideoPlayerScreen(
         }
     }
 } // End of VideoPlayerScreen
+
+fun Modifier.bounceClick(onClick: () -> Unit) = composed {
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+        label = "bounceClickScale"
+    )
+
+    this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
+        .pointerInput(Unit) {
+            detectTapGestures(
+                onPress = {
+                    isPressed = true
+                    tryAwaitRelease()
+                    isPressed = false
+                },
+                onTap = {
+                    onClick()
+                }
+            )
+        }
+}
 
 fun parseM3U(content: String): List<M3UItem> {
     val items = mutableListOf<M3UItem>()
