@@ -105,17 +105,17 @@ class MainActivity : ComponentActivity() {
 
             val colorScheme = if (isDarkTheme.value) {
                 darkColorScheme(
-                    background = Color(0xFF0F1014),
-                    surface = Color(0xFF16181F),
-                    onBackground = Color(0xFFFFFFFF),
-                    onSurface = Color(0xFFE1E6F0)
+                    background = Color.Black,
+                    surface = Color(0xFF1C1C1E),
+                    onBackground = Color.White,
+                    onSurface = Color(0xFFEBEBF5)
                 )
             } else {
                 lightColorScheme(
-                    background = Color(0xFFF5F5F7),
+                    background = Color(0xFFF2F2F7),
                     surface = Color.White,
-                    onBackground = Color(0xFF1D1D1F),
-                    onSurface = Color(0xFF1D1D1F)
+                    onBackground = Color(0xFF1C1C1E),
+                    onSurface = Color(0xFF1C1C1E)
                 )
             }
 
@@ -467,13 +467,13 @@ fun HeroSection() {
             modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.background(Color.Red.copy(alpha=0.2f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
-                    Text("LIVE NOW", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Box(modifier = Modifier.background(Color(0xFFFF3B30).copy(alpha=0.2f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
+                    Text("LIVE NOW", color = Color(0xFFFF3B30), fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 }
-                Box(modifier = Modifier.background(Color.White.copy(alpha=0.2f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
+                Box(modifier = Modifier.background(Color.White.copy(alpha=0.2f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
                     Text("ULTRA HD", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 }
-                Box(modifier = Modifier.background(Color.Green.copy(alpha=0.2f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
+                Box(modifier = Modifier.background(Color.Green.copy(alpha=0.2f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
                     Text("₹0 COST", color = Color.Green, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 }
             }
@@ -619,7 +619,7 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
             .fillMaxWidth()
             .bounceClick { onPlay(channel) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.1f))
     ) {
         Column(Modifier.padding(8.dp)) {
@@ -627,7 +627,7 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
@@ -672,8 +672,8 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(4.dp)
-                        .background(Color.Red, RoundedCornerShape(2.dp))
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                        .background(Color(0xFFFF3B30), RoundedCornerShape(50))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(text = "LIVE", color = Color.White, fontSize = 7.sp, fontWeight = FontWeight.Bold)
                 }
@@ -691,8 +691,8 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                Box(modifier = Modifier.background(Color.Blue.copy(alpha=0.1f), RoundedCornerShape(2.dp)).padding(horizontal = 3.dp, vertical = 1.dp)) {
-                    Text("Ad-Free", color = Color.Blue, fontSize = 6.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                Box(modifier = Modifier.background(Color(0xFF0A84FF).copy(alpha=0.15f), RoundedCornerShape(50)).padding(horizontal = 4.dp, vertical = 2.dp)) {
+                    Text("Ad-Free", color = Color(0xFF0A84FF), fontSize = 6.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                 }
             }
             
@@ -729,10 +729,10 @@ fun VideoPlayerScreen(
     val exoPlayer = remember {
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
-                32000, 
-                65536, 
-                2500,  
-                5000   
+                5000,  // minBufferMs (Wait only 5s before starting instead of 32s)
+                50000, // maxBufferMs
+                1000,  // bufferForPlaybackMs (Play quickly after 1s buffer)
+                2000   // bufferForPlaybackAfterRebufferMs 
             )
             .setBackBuffer(0, false)
             .build()
@@ -974,11 +974,11 @@ fun VideoPlayerScreen(
                             )
                             Spacer(Modifier.width(12.dp))
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Box(modifier = Modifier.background(Color.Blue.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
-                                    Text("AD-FREE", color = Color.Blue, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                Box(modifier = Modifier.background(Color(0xFF0A84FF).copy(alpha=0.15f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
+                                    Text("AD-FREE", color = Color(0xFF0A84FF), fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                 }
-                                Box(modifier = Modifier.background(Color.Red.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=4.dp)) {
-                                    Text("LIVE", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                Box(modifier = Modifier.background(Color(0xFFFF3B30).copy(alpha=0.15f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
+                                    Text("LIVE", color = Color(0xFFFF3B30), fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                 }
                                 IconButton(onClick = { 
                                     val prefs = context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE)
@@ -992,7 +992,7 @@ fun VideoPlayerScreen(
                                     }
                                     prefs.edit().putStringSet("zesty_favs", favs).apply()
                                 }, modifier = Modifier.size(32.dp)) {
-                                    Icon(if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Favorite", tint = if (isFavorite) Color.Red else Color.Gray)
+                                    Icon(if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Favorite", tint = if (isFavorite) Color(0xFFFF3B30) else Color.Gray)
                                 }
                             }
                         }
@@ -1013,9 +1013,9 @@ fun VideoPlayerScreen(
                             Box(
                                 modifier = Modifier
                                     .width(140.dp)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .clip(RoundedCornerShape(16.dp))
                                     .background(MaterialTheme.colorScheme.surface)
-                                    .border(if (isPlaying) 2.dp else 1.dp, if (isPlaying) Color.Red else Color.LightGray.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                                    .border(if (isPlaying) 2.dp else 1.dp, if (isPlaying) Color(0xFFFF3B30) else Color.LightGray.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
                                     .bounceClick { onChannelSelect(ch) }
                             ) {
                                 Column {
@@ -1072,14 +1072,14 @@ fun VideoPlayerScreen(
                     
                     // Bento style
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.Send, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
                                 Spacer(Modifier.height(8.dp))
                                 Text("OPEN TELEGRAM", fontSize=12.sp, fontWeight=FontWeight.Black, color=Color.White, textAlign = TextAlign.Center)
                             }
                         }
-                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Brush.horizontalGradient(listOf(Color(0xFFE50914), Color(0xFFB81D24)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app/"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Brush.horizontalGradient(listOf(Color(0xFFE50914), Color(0xFFB81D24)))).bounceClick{ context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app/"))) }.padding(16.dp), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.Movie, contentDescription=null, tint=Color.White, modifier=Modifier.size(24.dp))
                                 Spacer(Modifier.height(8.dp))
@@ -1089,8 +1089,8 @@ fun VideoPlayerScreen(
                     }
                     
                     Spacer(Modifier.height(24.dp))
-                    Button(onClick = { showJoinPopup = false }, modifier = Modifier.fillMaxWidth().height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface), shape = RoundedCornerShape(12.dp)) {
-                        Text("CLOSE & WATCH STREAM", color = Color.White, fontWeight = FontWeight.Bold)
+                    Button(onClick = { showJoinPopup = false }, modifier = Modifier.fillMaxWidth().height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface), shape = RoundedCornerShape(50)) {
+                        Text("CLOSE & WATCH STREAM", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                     }
                 }
             }
