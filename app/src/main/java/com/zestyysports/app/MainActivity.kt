@@ -10,7 +10,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -756,8 +755,8 @@ fun VideoPlayerScreen(
         showStatsForNerds = false
         showJoinPopup = true
         val dataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
-            .setConnectTimeoutMs(15000)
-            .setReadTimeoutMs(15000)
+            .setConnectTimeoutMs(30000)
+            .setReadTimeoutMs(30000)
             .setAllowCrossProtocolRedirects(true)
         val mediaSource = androidx.media3.exoplayer.source.DefaultMediaSourceFactory(dataSourceFactory)
             .createMediaSource(MediaItem.fromUri(channel.url))
@@ -826,14 +825,16 @@ fun VideoPlayerScreen(
             )
 
             if (isBuffering) {
-                val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition()
-                val pulseAlpha by infiniteTransition.animateFloat(
-                    initialValue = 0.4f,
-                    targetValue = 1f,
-                    animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-                        animation = androidx.compose.animation.core.tween(1000, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-                        repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
-                    ),
+                var pulse by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) {
+                    while(true) {
+                        pulse = !pulse
+                        delay(500)
+                    }
+                }
+                val pulseAlpha by androidx.compose.animation.core.animateFloatAsState(
+                    targetValue = if (pulse) 1f else 0.4f,
+                    animationSpec = androidx.compose.animation.core.tween(500),
                     label = "pulseAlpha"
                 )
                 Box(
