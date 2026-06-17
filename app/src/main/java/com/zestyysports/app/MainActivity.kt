@@ -80,6 +80,7 @@ val fontName = GoogleFont("Inter")
 val InterFontFamily = FontFamily(
     Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Normal),
     Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Medium),
+    Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.SemiBold),
     Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Bold),
     Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.ExtraBold),
     Font(googleFont = fontName, fontProvider = provider, weight = FontWeight.Black)
@@ -139,25 +140,29 @@ class MainActivity : ComponentActivity() {
             )
 
             MaterialTheme(colorScheme = colorScheme, typography = typography) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.material3.LocalTextStyle provides androidx.compose.ui.text.TextStyle(fontFamily = InterFontFamily)
                 ) {
-                    ZestyyApp(
-                        isDarkTheme = isDarkTheme.value,
-                        onThemeToggle = { 
-                            val newValue = !isDarkTheme.value
-                            isDarkTheme.value = newValue 
-                            sharedPrefs.edit().putBoolean("is_dark_theme", newValue).apply()
-                        },
-                        onOrientationChange = { landscape ->
-                            requestedOrientation = if (landscape) {
-                                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-                            } else {
-                                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        ZestyyApp(
+                            isDarkTheme = isDarkTheme.value,
+                            onThemeToggle = { 
+                                val newValue = !isDarkTheme.value
+                                isDarkTheme.value = newValue 
+                                sharedPrefs.edit().putBoolean("is_dark_theme", newValue).apply()
+                            },
+                            onOrientationChange = { landscape ->
+                                requestedOrientation = if (landscape) {
+                                    ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                                } else {
+                                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
