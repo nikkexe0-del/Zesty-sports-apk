@@ -586,6 +586,7 @@ fun MainScreen(
         }
     }
 }
+}
 
 @Composable
 fun HeroSection() {

@@ -537,7 +537,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title, poster, on
             let loadedBytes = 0;
             if (data && data.frag && data.frag.stats && data.frag.stats.loaded) {
               loadedBytes = data.frag.stats.loaded;
-            } else if (data && data.stats && data.stats.total) { // older hls.js versions
+            } else if (data && (data as any).stats && (data as any).stats.total) { // older hls.js versions
               loadedBytes = (data as any).stats.total;
             }
             if (loadedBytes > 0) {

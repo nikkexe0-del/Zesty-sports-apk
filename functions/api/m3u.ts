@@ -24,7 +24,7 @@ export async function onRequest(context: any) {
       cf: {
         cacheTtlByStatus: { '200-299': 60, 404: 1, '500-599': 0 }
       }
-    });
+    } as any);
 
     const text = await response.text();
     
