@@ -106,17 +106,17 @@ class MainActivity : ComponentActivity() {
 
             val colorScheme = if (isDarkTheme.value) {
                 darkColorScheme(
-                    background = Color.Black,
-                    surface = Color(0xFF1C1C1E),
-                    onBackground = Color.White,
-                    onSurface = Color(0xFFEBEBF5)
+                    background = Color(0xFF0A0A0A), // Tailwind bg-neutral-950
+                    surface = Color(0xFF171717), // Tailwind dark:bg-neutral-900 / 0xFF171717
+                    onBackground = Color(0xFFFFFFFF), // primary white text
+                    onSurface = Color(0xFFE5E5E5) // secondary warm gray text
                 )
             } else {
                 lightColorScheme(
-                    background = Color(0xFFF2F2F7),
-                    surface = Color.White,
-                    onBackground = Color(0xFF1C1C1E),
-                    onSurface = Color(0xFF1C1C1E)
+                    background = Color(0xFFF5F5F5), // Tailwind bg-neutral-100
+                    surface = Color.White, // Tailwind bg-white
+                    onBackground = Color(0xFF171717), // primary dark neutral-900 text
+                    onSurface = Color(0xFF525252) // secondary dark neutral-600 text
                 )
             }
 
@@ -237,6 +237,7 @@ fun MainScreen(
     }
     
     var displayedItemCount by remember { mutableStateOf(20) }
+    var showPopup by remember { mutableStateOf(true) }
 
     // Save favorites and tab state whenever they change
     LaunchedEffect(favorites) {
@@ -310,65 +311,84 @@ fun MainScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
-        val listState = rememberLazyListState()
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            item {
-                // Hero Section
-                HeroSection()
-            }
-
-            if (currentTab == "search") {
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            val listState = rememberLazyListState()
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize()
+            ) {
                 item {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text("Search channels...") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Red,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        )
-                    )
+                    // Hero Section
+                    HeroSection()
                 }
-            }
 
-            if (currentTab == "home") {
-                item {
-                    val groupListState = rememberLazyListState()
-                    LazyRow(
-                        state = groupListState,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        flingBehavior = rememberSnapFlingBehavior(groupListState)
-                    ) {
-                        items(groups) { group ->
-                            val isSelected = activeGroup == group
-                            Button(
-                                onClick = { activeGroup = group },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isSelected) Color.Red else MaterialTheme.colorScheme.surface,
-                                    contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                ),
-                                shape = RoundedCornerShape(50),
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                            ) {
-                                Text(group.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                if (currentTab == "search") {
+                    item {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            placeholder = { Text("Search channels...") },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
+                                unfocusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
+                                focusedPlaceholderColor = Color.Gray,
+                                unfocusedPlaceholderColor = Color.Gray,
+                                focusedBorderColor = Color(0xFFDC2626), // focus:border-red-500
+                                unfocusedBorderColor = if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5),
+                                focusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+                                unfocusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+                            )
+                        )
+                    }
+                }
+
+                if (currentTab == "home") {
+                    item {
+                        val groupListState = rememberLazyListState()
+                        LazyRow(
+                            state = groupListState,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            flingBehavior = rememberSnapFlingBehavior(groupListState)
+                        ) {
+                            items(groups) { group ->
+                                val isSelected = activeGroup == group
+                                val borderStroke = if (isSelected) {
+                                    null
+                                } else {
+                                    androidx.compose.foundation.BorderStroke(
+                                        1.dp,
+                                        if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5)
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .bounceClick { activeGroup = group }
+                                        .clip(RoundedCornerShape(50))
+                                        .background(
+                                            if (isSelected) Color(0xFFDC2626) else (if (isDarkTheme) Color(0xFF171717) else Color.White)
+                                        )
+                                        .then(if (borderStroke != null) Modifier.border(borderStroke, RoundedCornerShape(50)) else Modifier)
+                                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = group.uppercase(),
+                                        color = if (isSelected) Color.White else (if (isDarkTheme) Color(0xFFA3A3A3) else Color(0xFF525252)),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Black,
+                                        letterSpacing = 1.sp
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
 
             if (isLoading) {
                 item {
@@ -451,82 +471,220 @@ fun MainScreen(
                 Footer()
             }
         }
+
+        // Floating Info warning popup absolute at top center
+        AnimatedVisibility(
+            visible = showPopup,
+            enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(initialOffsetY = { -it }),
+            exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically(targetOffsetY = { -it }),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 16.dp, start = 16.dp, end = 16.dp)
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isDarkTheme) Color(0xFF171717) else Color.White
+                ),
+                shape = RoundedCornerShape(50),
+                modifier = Modifier.widthIn(max = 450.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Left Icon
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFF59E0B).copy(alpha = 0.12f), CircleShape)
+                            .padding(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Info",
+                            tint = Color(0xFFF59E0B),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                    
+                    // Middle Text with styled link
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "If streams fail, visit ",
+                            fontSize = 10.sp,
+                            color = if (isDarkTheme) Color(0xFFD4D4D4) else Color(0xFF525252),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "nikkitv.vercel.app",
+                            fontSize = 10.sp,
+                            color = Color(0xFFF59E0B),
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.clickable {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://nikkitv.vercel.app")))
+                            }
+                        )
+                    }
+                    
+                    // Close button
+                    IconButton(
+                        onClick = { showPopup = false },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Close",
+                            tint = if (isDarkTheme) Color(0xFF737373) else Color(0xFF9E9E9E),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Floating global theme switcher pill at top-right
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 16.dp, end = 16.dp)
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isDarkTheme) Color.White.copy(alpha = 0.1f) else Color(0xFF171717).copy(alpha = 0.85f)
+                ),
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .bounceClick { onThemeToggle() }
+                    .border(
+                        1.dp,
+                        if (isDarkTheme) Color.White.copy(alpha = 0.15f) else Color(0xFF171717).copy(alpha = 0.15f),
+                        RoundedCornerShape(50)
+                    ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = if (isDarkTheme) "LIGHT MODE" else "DARK MODE",
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 8.sp,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun HeroSection() {
     val context = LocalContext.current
+    val animSetting = androidx.compose.animation.core.rememberInfiniteTransition(label = "pulseHero")
+    val pulseAlpha by animSetting.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 1f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(800, easing = androidx.compose.animation.core.LinearEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .height(180.dp)
+            .height(280.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Brush.linearGradient(listOf(Color(0xFF111111), Color.Black)))
+            .background(Brush.linearGradient(listOf(Color(0xFF171717), Color.Black)))
     ) {
-        // Overlay gradient
-        Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha=0.8f)))))
+        // Overlay gradient matching the web UI
+        Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha=0.9f), Color.Black.copy(alpha=0.4f), Color.Transparent))))
+        Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(Color.Black.copy(alpha=0.8f), Color.Transparent, Color.Transparent))))
         
         Column(
-            modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
+            modifier = Modifier.align(Alignment.BottomStart).padding(24.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.background(Color(0xFFFF3B30).copy(alpha=0.2f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
-                    Text("LIVE NOW", color = Color(0xFFFF3B30), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Box(modifier = Modifier.background(Color.Transparent).border(1.dp, Color(0xFFFF3B30).copy(alpha=0.5f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Box(modifier = Modifier.size(6.dp).background(Color(0xFFFF3B30).copy(alpha = pulseAlpha), CircleShape))
+                        Text("LIVE NOW", color = Color(0xFFFF3B30), fontSize = 9.sp, fontWeight = FontWeight.Black)
+                    }
                 }
-                Box(modifier = Modifier.background(Color.White.copy(alpha=0.2f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
-                    Text("ULTRA HD", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Box(modifier = Modifier.background(Color.White.copy(alpha=0.1f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
+                    Text("ULTRA HD", color = Color.White.copy(alpha=0.8f), fontSize = 9.sp, fontWeight = FontWeight.Black)
                 }
-                Box(modifier = Modifier.background(Color.Green.copy(alpha=0.2f), RoundedCornerShape(50)).padding(horizontal=8.dp, vertical=4.dp)) {
-                    Text("₹0 COST", color = Color.Green, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Box(modifier = Modifier.background(Color(0xFF4ADE80).copy(alpha=0.2f), RoundedCornerShape(4.dp)).padding(horizontal=6.dp, vertical=2.dp)) {
+                    Text("₹0 COST", color = Color(0xFF4ADE80), fontSize = 9.sp, fontWeight = FontWeight.Black)
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Image(
-                painter = painterResource(id = R.drawable.zestyy_logo),
-                contentDescription = "Zesty Logo",
-                modifier = Modifier.height(36.dp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "zestyysports",
+                color = Color.White,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = (-1).sp,
+                lineHeight = 40.sp
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Worldwide channels in HD, Ad-free, 4K — for free. Access premium channels instantly.", color = Color.LightGray, fontSize = 12.sp)
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Worldwide channels in HD, Ad-free, 4K — for free.\nAccess premium channels instantly.", 
+                color = Color.LightGray, 
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 18.sp
+            )
+            Spacer(modifier = Modifier.height(20.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 // Telegram Gradient Button
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(Color(0xFF0A84FF).copy(alpha=0.15f))
                         .bounceClick { 
                             val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))
                             context.startActivity(i)
                         }
-                        .padding(horizontal=16.dp, vertical=10.dp),
+                        .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp), spotColor = Color(0xFF3B82F6), ambientColor = Color(0xFF3B82F6))
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Brush.horizontalGradient(listOf(Color(0xFF3B82F6), Color(0xFF38BDF8))))
+                        .padding(horizontal=24.dp, vertical=12.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Send, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color(0xFF0A84FF))
-                        Spacer(Modifier.width(4.dp))
-                        Text("TELEGRAM", fontSize=10.sp, fontWeight=FontWeight.Bold, color=Color(0xFF0A84FF))
+                        Icon(Icons.Default.Send, contentDescription=null, modifier=Modifier.size(16.dp), tint=Color(0xFF0A0A0A))
+                        Spacer(Modifier.width(8.dp))
+                        Text("TELEGRAM", fontSize=11.sp, fontWeight=FontWeight.Black, color=Color(0xFF0A0A0A), letterSpacing = 2.sp)
                     }
                 }
                 
                 // Instagram Gradient Button
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(Color(0xFF0A84FF).copy(alpha=0.15f))
                         .bounceClick { 
                             val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))
                             context.startActivity(i)
                         }
-                        .padding(horizontal=16.dp, vertical=10.dp),
+                        .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp), spotColor = Color(0xFF34D399), ambientColor = Color(0xFF34D399))
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Brush.horizontalGradient(listOf(Color(0xFF34D399), Color(0xFF06B6D4))))
+                        .padding(horizontal=24.dp, vertical=12.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Person, contentDescription=null, modifier=Modifier.size(14.dp), tint=Color(0xFF0A84FF))
-                        Spacer(Modifier.width(4.dp))
-                        Text("@NIKKK.EXE", fontSize=10.sp, fontWeight=FontWeight.Bold, color=Color(0xFF0A84FF))
+                        Icon(Icons.Default.Person, contentDescription=null, modifier=Modifier.size(16.dp), tint=Color(0xFF0A0A0A))
+                        Spacer(Modifier.width(8.dp))
+                        Text("@NIKKK.EXE", fontSize=11.sp, fontWeight=FontWeight.Black, color=Color(0xFF0A0A0A), letterSpacing = 2.sp)
                     }
                 }
             }
@@ -548,60 +706,73 @@ fun Footer() {
             contentDescription = "Zestyysports Logo",
             modifier = Modifier.height(32.dp)
         )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            "Worldwide channels in HD, Ad-free, 4K — for free.", 
-            color = Color.Gray, 
-            fontSize = 12.sp, 
-            fontWeight = FontWeight.Medium, 
-            textAlign = TextAlign.Center,
-            letterSpacing = (-0.5).sp
-        )
         Spacer(Modifier.height(16.dp))
         Text(
-            "Developed and maintained by SpeedNikk", 
-            color = Color.Gray.copy(alpha=0.6f), 
-            fontSize = 10.sp, 
-            fontWeight = FontWeight.Medium, 
-            textAlign = TextAlign.Center
+            "WORLDWIDE CHANNELS IN HD, AD-FREE, 4K — FOR FREE.", 
+            color = Color.LightGray, 
+            fontSize = 12.sp, 
+            fontWeight = FontWeight.Bold, 
+            textAlign = TextAlign.Center,
+            letterSpacing = 1.sp
         )
         Spacer(Modifier.height(32.dp))
         
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            // Instagram
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+            // Telegram Gradient Button
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF0A84FF).copy(alpha=0.15f))
-                    .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe"))) },
+                    .bounceClick { 
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9")))
+                    }
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp), spotColor = Color(0xFF3B82F6), ambientColor = Color(0xFF3B82F6))
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF3B82F6), Color(0xFF38BDF8))))
+                    .padding(horizontal=24.dp, vertical=12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Person, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(24.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Send, contentDescription=null, modifier=Modifier.size(16.dp), tint=Color(0xFF0A0A0A))
+                    Spacer(Modifier.width(8.dp))
+                    Text("TELEGRAM", fontSize=11.sp, fontWeight=FontWeight.Black, color=Color(0xFF0A0A0A), letterSpacing = 2.sp)
+                }
             }
             
-            // Telegram
+            // Instagram Gradient Button
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF0A84FF).copy(alpha=0.15f))
-                    .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+0sACDI0bSDI2Njg9"))) },
+                    .bounceClick { 
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/nikkk.exe")))
+                    }
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp), spotColor = Color(0xFF34D399), ambientColor = Color(0xFF34D399))
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF34D399), Color(0xFF06B6D4))))
+                    .padding(horizontal=24.dp, vertical=12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Send, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(24.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Person, contentDescription=null, modifier=Modifier.size(16.dp), tint=Color(0xFF0A0A0A))
+                    Spacer(Modifier.width(8.dp))
+                    Text("@NIKKK.EXE", fontSize=11.sp, fontWeight=FontWeight.Black, color=Color(0xFF0A0A0A), letterSpacing = 2.sp)
+                }
             }
             
-            // ZestyyFlix
+            // ZestyyFlix Button
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF0A84FF).copy(alpha=0.15f))
-                    .bounceClick { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app"))) },
+                    .bounceClick { 
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://zestyyflix.vercel.app")))
+                    }
+                    .border(1.dp, Color.White.copy(alpha=0.1f), RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFF171717))
+                    .padding(horizontal=24.dp, vertical=12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Movie, contentDescription=null, tint=Color(0xFF0A84FF), modifier=Modifier.size(24.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Movie, contentDescription=null, modifier=Modifier.size(16.dp), tint=Color.White)
+                    Spacer(Modifier.width(8.dp))
+                    Text("MORE FROM ZESTYY", fontSize=11.sp, fontWeight=FontWeight.Black, color=Color.White, letterSpacing = 2.sp)
+                }
             }
         }
     }
@@ -609,22 +780,29 @@ fun Footer() {
 
 @Composable
 fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (String) -> Unit, onPlay: (M3UItem) -> Unit) {
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF0A0A0A)
+    
     Card(
         modifier = Modifier
-            .padding(4.dp)
+            .padding(6.dp)
             .fillMaxWidth()
             .bounceClick { onPlay(channel) },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(16.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.1f))
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDark) Color(0xFF121212) else Color.White
+        ),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (isDark) Color.White.copy(alpha = 0.05f) else Color(0xFFE5E5E5)
+        )
     ) {
-        Column(Modifier.padding(8.dp)) {
+        Column(Modifier.padding(10.dp)) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.background),
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (isDark) Color(0xFF0A0A0A) else Color(0xFFF5F5F5)),
                 contentAlignment = Alignment.Center
             ) {
                 if (channel.logo.isNotEmpty()) {
@@ -635,14 +813,18 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
                             .build(),
                         contentDescription = channel.name,
                         contentScale = ContentScale.Inside,
-                        modifier = Modifier.fillMaxSize().padding(8.dp)
+                        modifier = Modifier.fillMaxSize().padding(12.dp)
                     )
                 } else {
                     Text(
-                        text = channel.name.take(3).uppercase(),
-                        color = Color.Gray,
+                        text = channel.name,
+                        color = if (isDark) Color(0xFF737373) else Color(0xFF9E9E9E),
                         fontWeight = FontWeight.Black,
-                        fontSize = 18.sp
+                        fontSize = 11.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(12.dp),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -650,55 +832,76 @@ fun ChannelMiniCard(channel: M3UItem, isFavorite: Boolean, onToggleFavorite: (St
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(4.dp)
-                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-                        .bounceClick { onToggleFavorite(channel.id) }
-                        .padding(4.dp)
+                        .padding(6.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .clickable { onToggleFavorite(channel.id) }
+                        .padding(6.dp)
                 ) {
                     Icon(
                         imageVector = if(isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Fav",
-                        tint = if(isFavorite) Color.Red else Color.White,
-                        modifier = Modifier.size(12.dp)
+                        tint = if(isFavorite) Color(0xFFEF4444) else Color.White,
+                        modifier = Modifier.size(10.dp)
                     )
                 }
 
                 // Live Badge
+                val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition(label = "pulseCard")
+                val pulseAlpha by infiniteTransition.animateFloat(
+                    initialValue = 0.4f,
+                    targetValue = 1f,
+                    animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                        animation = androidx.compose.animation.core.tween(750, easing = androidx.compose.animation.core.LinearEasing),
+                        repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                    ),
+                    label = "pulseAlphaCard"
+                )
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .background(Color(0xFFFF3B30), RoundedCornerShape(50))
+                        .padding(6.dp)
+                        .background(Color(0xFFDC2626).copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                        .border(1.dp, Color(0xFFDC2626).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
-                    Text(text = "LIVE", color = Color.White, fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Box(modifier = Modifier.size(4.dp).background(Color(0xFFEF4444).copy(alpha = pulseAlpha), CircleShape))
+                        Text(text = "LIVE", color = Color(0xFFEF4444), fontSize = 7.sp, fontWeight = FontWeight.Black)
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = channel.name, 
-                    color = MaterialTheme.colorScheme.onSurface, 
-                    fontSize = 11.sp, 
+                    color = if (isDark) Color(0xFFFFFFFF) else Color(0xFF171717), 
+                    fontSize = 12.sp, 
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                Box(modifier = Modifier.background(Color(0xFF0A84FF).copy(alpha=0.15f), RoundedCornerShape(50)).padding(horizontal = 4.dp, vertical = 2.dp)) {
-                    Text("Ad-Free", color = Color(0xFF0A84FF), fontSize = 6.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFF0A84FF).copy(alpha=0.12f), RoundedCornerShape(4.dp))
+                        .border(1.dp, Color(0xFF0A84FF).copy(alpha=0.2f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Text("AD-FREE", color = Color(0xFF0A84FF), fontSize = 6.sp, fontWeight = FontWeight.Black, letterSpacing = 0.5.sp)
                 }
             }
             
             if (channel.group.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = channel.group.uppercase(), 
-                    color = Color.Gray, 
+                    color = if (isDark) Color(0xFF737373) else Color(0xFF9E9E9E), 
                     fontSize = 8.sp, 
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
