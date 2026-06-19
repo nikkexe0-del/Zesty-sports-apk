@@ -15,6 +15,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import com.microsoft.clarity.Clarity
 import com.microsoft.clarity.ClarityConfig
 import com.microsoft.clarity.models.LogLevel
+import com.google.firebase.analytics.FirebaseAnalytics
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -101,9 +102,13 @@ data class M3UItem(
 )
 
 class MainActivity : ComponentActivity() {
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
         
         val config = ClarityConfig(
             projectId = "x98ux3eejx",

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "79733959016",
+    "project_id": "zestyysports",
+    "storage_bucket": "zestyysports.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79733959016:android:0d43f5c335cdb52ae90edd",
+        "android_client_info": {
+          "package_name": "com.zestyysports.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKl_S1oUktw5rXNexKkSJt99LhjnIMViI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
