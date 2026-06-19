@@ -331,35 +331,35 @@ fun MainScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            if (currentTab == "search") {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    placeholder = { Text("Search channels...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
-                        unfocusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
-                        focusedPlaceholderColor = Color.Gray,
-                        unfocusedPlaceholderColor = Color.Gray,
-                        focusedBorderColor = Color(0xFFDC2626), // focus:border-red-500
-                        unfocusedBorderColor = if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5),
-                        focusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
-                        unfocusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                if (currentTab == "search") {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        placeholder = { Text("Search channels...") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
+                            unfocusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray,
+                            focusedBorderColor = Color(0xFFDC2626), // focus:border-red-500
+                            unfocusedBorderColor = if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5),
+                            focusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+                            unfocusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+                        )
                     )
-                )
-            }
+                }
 
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 val listState = rememberLazyListState()
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.weight(1f).fillMaxWidth()
                 ) {
                     item {
                         // Hero Section
@@ -490,7 +490,8 @@ fun MainScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Footer()
             }
-        }
+        } // End LazyColumn
+        } // End Column
 
         // Floating Info warning popup absolute at top center
         AnimatedVisibility(
