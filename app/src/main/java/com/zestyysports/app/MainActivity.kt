@@ -12,6 +12,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import com.microsoft.clarity.Clarity
+import com.microsoft.clarity.ClarityConfig
+import com.microsoft.clarity.models.LogLevel
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -101,6 +104,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        
+        val config = ClarityConfig(
+            projectId = "x98ux3eejx",
+            logLevel = LogLevel.None
+        )
+        Clarity.initialize(applicationContext, config)
+
         setContent {
             val context = LocalContext.current
             val sharedPrefs = remember { context.getSharedPreferences("zesty_prefs", Context.MODE_PRIVATE) }

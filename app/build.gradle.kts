@@ -63,4 +63,7 @@ dependencies {
     
     // Image Loading
     implementation("io.coil-kt:coil-compose:2.4.0")
+
+    // Analytics
+    implementation("com.microsoft.clarity:clarity-compose:3.+")
 }
