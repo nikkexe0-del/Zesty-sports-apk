@@ -28,16 +28,11 @@ import { parseM3U, M3UItem } from './lib/m3u';
 import { VideoPlayer } from './components/VideoPlayer';
 
 const SOURCES_INDIA = [
-  { id: 'premium', name: 'Premium Playlist', url: 'https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/premium.m3u' },
-  { id: 'sportspremimum', name: 'Sports Premium', url: 'https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/sportspremimum.m3u' },
-  { id: 'ixp', name: 'IXP (Default)', url: 'https://m3u-tvb.pages.dev/ixp.m3u' },
-  { id: 'sonur', name: 'Sports (Sonur)', url: 'https://raw.githubusercontent.com/Tarangg5/sports/c95399510f59c764e1ef903c69b40e627495a2f7/sonur.m3u' },
-  { id: 'layasync', name: 'LayaSync', url: 'https://raw.githubusercontent.com/layasync/LayaSync.github.io/0dcc38e4281761de08a946619e51f48a34e0bed3/playlist%20(10).m3u' }
+  { id: 'adl', name: 'ADL Playlist', url: 'https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/adl.m3u' }
 ];
 
 const SOURCES_USA = [
-  { id: 'zestyycustom', name: 'Zestyy Custom', url: 'https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/zestyyxtream_live_custom.m3u' },
-  { id: 'usa', name: 'USA Streams', url: 'https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/4klive.m3u' }
+  { id: 'adl', name: 'ADL Playlist', url: 'https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/adl.m3u' }
 ];
 
 /* ─── Error Boundary ─────────────────────────────── */
@@ -709,8 +704,8 @@ const PlaylistContainer = () => {
 
   useEffect(() => {
     let active = true;
-    const fetchAllChannels = async () => {
-      setLoading(true);
+    const fetchAllChannels = async (initialLoad = false) => {
+      if (initialLoad) setLoading(true);
       try {
         const MAX_TOTAL_CHANNELS = 20000;
         
@@ -814,9 +809,14 @@ const PlaylistContainer = () => {
       }
     };
 
-    fetchAllChannels();
+    fetchAllChannels(true);
+    const interval = setInterval(() => {
+      fetchAllChannels(false);
+    }, 60000);
+
     return () => {
       active = false;
+      clearInterval(interval);
     };
   }, [pid]);
 

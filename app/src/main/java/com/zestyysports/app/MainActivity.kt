@@ -195,21 +195,24 @@ fun ZestyyApp(isDarkTheme: Boolean, onThemeToggle: () -> Unit, onOrientationChan
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             val client = OkHttpClient()
-            val request = Request.Builder()
-                .url("https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/premium.m3u")
-                .build()
-            try {
-                val response = client.newCall(request).execute()
-                val body = response.body?.string() ?: ""
-                val parsed = parseM3U(body)
-                withContext(Dispatchers.Main) {
-                    channels = parsed
-                    isLoading = false
+            while (true) {
+                val request = Request.Builder()
+                    .url("https://raw.githubusercontent.com/nikkexe0-del/alexplaylist/refs/heads/main/adl.m3u")
+                    .build()
+                try {
+                    val response = client.newCall(request).execute()
+                    val body = response.body?.string() ?: ""
+                    val parsed = parseM3U(body)
+                    withContext(Dispatchers.Main) {
+                        channels = parsed
+                        isLoading = false
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        isLoading = false
+                    }
                 }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    isLoading = false
-                }
+                delay(60000)
             }
         }
     }
