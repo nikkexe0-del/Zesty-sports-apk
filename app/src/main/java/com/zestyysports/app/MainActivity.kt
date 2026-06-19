@@ -331,123 +331,123 @@ fun MainScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            val listState = rememberLazyListState()
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                item {
-                    // Hero Section
-                    HeroSection()
-                }
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            if (currentTab == "search") {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = { Text("Search channels...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
+                        unfocusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
+                        focusedPlaceholderColor = Color.Gray,
+                        unfocusedPlaceholderColor = Color.Gray,
+                        focusedBorderColor = Color(0xFFDC2626), // focus:border-red-500
+                        unfocusedBorderColor = if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5),
+                        focusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+                        unfocusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+                    )
+                )
+            }
 
-                if (currentTab == "search") {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                val listState = rememberLazyListState()
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     item {
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            placeholder = { Text("Search channels...") },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
-                                unfocusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
-                                focusedPlaceholderColor = Color.Gray,
-                                unfocusedPlaceholderColor = Color.Gray,
-                                focusedBorderColor = Color(0xFFDC2626), // focus:border-red-500
-                                unfocusedBorderColor = if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5),
-                                focusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
-                                unfocusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
-                            )
-                        )
+                        // Hero Section
+                        HeroSection()
                     }
-                }
 
-                if (currentTab == "home") {
-                    item {
-                        val groupListState = rememberLazyListState()
-                        LazyRow(
-                            state = groupListState,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            flingBehavior = rememberSnapFlingBehavior(groupListState)
-                        ) {
-                            items(groups) { group ->
-                                val isSelected = activeGroup == group
-                                val borderStroke = if (isSelected) {
-                                    null
-                                } else {
-                                    androidx.compose.foundation.BorderStroke(
-                                        1.dp,
-                                        if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5)
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .bounceClick { activeGroup = group }
-                                        .clip(RoundedCornerShape(50))
-                                        .background(
-                                            if (isSelected) Color(0xFFDC2626) else (if (isDarkTheme) Color(0xFF171717) else Color.White)
+                    if (currentTab == "home") {
+                        item {
+                            val groupListState = rememberLazyListState()
+                            LazyRow(
+                                state = groupListState,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                flingBehavior = rememberSnapFlingBehavior(groupListState)
+                            ) {
+                                items(groups) { group ->
+                                    val isSelected = activeGroup == group
+                                    val borderStroke = if (isSelected) {
+                                        null
+                                    } else {
+                                        androidx.compose.foundation.BorderStroke(
+                                            1.dp,
+                                            if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5)
                                         )
-                                        .then(if (borderStroke != null) Modifier.border(borderStroke, RoundedCornerShape(50)) else Modifier)
-                                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = group.uppercase(),
-                                        color = if (isSelected) Color.White else (if (isDarkTheme) Color(0xFFA3A3A3) else Color(0xFF525252)),
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Black,
-                                        letterSpacing = 1.sp
-                                    )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .bounceClick { activeGroup = group }
+                                            .clip(RoundedCornerShape(50))
+                                            .background(
+                                                if (isSelected) Color(0xFFDC2626) else (if (isDarkTheme) Color(0xFF171717) else Color.White)
+                                            )
+                                            .then(if (borderStroke != null) Modifier.border(borderStroke, RoundedCornerShape(50)) else Modifier)
+                                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = group.uppercase(),
+                                            color = if (isSelected) Color.White else (if (isDarkTheme) Color(0xFFA3A3A3) else Color(0xFF525252)),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Black,
+                                            letterSpacing = 1.sp
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-            if (isLoading) {
-                item {
-                    Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color.Red)
-                    }
-                }
-            } else {
-                if (currentTab == "search" && searchQuery.isNotBlank()) {
+                if (isLoading) {
                     item {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("SEARCH RESULTS", color = Color.Red, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Box(modifier = Modifier.weight(1f).height(1.dp).background(Color.Red.copy(alpha=0.1f)))
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text("${filteredChannels.size} FOUND", fontSize = 10.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-
-                if (filteredChannels.isEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp)
-                                .border(2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                                .padding(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("NO MATCHING CHANNELS.", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                        Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = Color.Red)
                         }
                     }
                 } else {
-                    val columns = 2
-                    val chunkedList = filteredChannels.take(displayedItemCount).chunked(columns)
+                    if (currentTab == "search" && searchQuery.isNotBlank()) {
+                        item {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("SEARCH RESULTS", color = Color.Red, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Box(modifier = Modifier.weight(1f).height(1.dp).background(Color.Red.copy(alpha=0.1f)))
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text("${filteredChannels.size} FOUND", fontSize = 10.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    if (filteredChannels.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp)
+                                    .border(2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+                                    .padding(32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("NO MATCHING CHANNELS.", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                            }
+                        }
+                    } else {
+                        val columns = 2
+                        val chunkedList = filteredChannels.take(displayedItemCount).chunked(columns)
+
                     items(chunkedList, key = { rowItems -> rowItems.joinToString { it.id } }) { rowItems ->
                         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
                             rowItems.forEach { channel ->
