@@ -63,9 +63,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title, poster, on
   });
   const [unlockSuccess, setUnlockSuccess] = useState(false);
   const [unlockCode, setUnlockCode] = useState('');
+  const [showLowBufferToast, setShowLowBufferToast] = useState(false);
 
   const hlsRef = useRef<Hls | null>(null);
   const playerRef = useRef<mpegts.Player | null>(null);
+  const lastToastTime = useRef(0);
 
   useEffect(() => {
     const initCast = (isAvailable: boolean) => {
@@ -154,6 +156,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title, poster, on
         if (info && info.speed) {
           addData = info.speed * 1024;
           if (bitrate === 'Unknown') bitrate = `${(info.speed * 8).toFixed(0)} kbps`;
+        }
+      }
+
+      if (!v.paused && v.currentTime > 0 && bufferLen < 1.0 && !isBuildingBuffer && v.readyState >= 2) {
+        const now = Date.now();
+        if (now - lastToastTime.current > 30000) {
+          setShowLowBufferToast(true);
+          lastToastTime.current = now;
+          setTimeout(() => setShowLowBufferToast(false), 8000);
         }
       }
 
@@ -874,6 +885,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title, poster, on
                  </div>
                )}
              </div>
+          </div>
+
+          {/* Buffer Warning Toast */}
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none transition-all duration-500 ease-in-out ${showLowBufferToast ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className="bg-black/80 backdrop-blur border border-red-500/50 text-white px-4 py-3 rounded-lg shadow-2xl flex flex-col items-center text-center gap-1">
+              <div className="font-bold text-red-400">Low Buffer Detected</div>
+              <div className="text-sm text-neutral-300">Connection is unstable. Try lowering the quality.</div>
+            </div>
           </div>
 
           {/* Bottom Controls Gradient & Bar */}

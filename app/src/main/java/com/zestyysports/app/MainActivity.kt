@@ -984,6 +984,17 @@ fun VideoPlayerScreen(
         onDispose { exoPlayer.removeListener(listener) }
     }
 
+    var lastBufferToastTime by remember { mutableStateOf(0L) }
+    LaunchedEffect(isBuffering) {
+        if (isBuffering && exoPlayer.currentPosition > 0) {
+            val now = System.currentTimeMillis()
+            if (now - lastBufferToastTime > 30000) {
+                android.widget.Toast.makeText(context, "Low Buffer Detected. Connection is unstable. Try lowering the quality.", android.widget.Toast.LENGTH_LONG).show()
+                lastBufferToastTime = now
+            }
+        }
+    }
+
     LaunchedEffect(channel) {
         showStatsForNerds = false
         showJoinPopup = true
