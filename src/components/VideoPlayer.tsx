@@ -509,11 +509,19 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title, poster, on
             lowLatencyMode: false,
             maxBufferLength: 120, // Increased buffer
             maxMaxBufferLength: 180,
-            manifestLoadingMaxRetry: 4,
-            levelLoadingMaxRetry: 4,
-            fragLoadingMaxRetry: 4,
+            manifestLoadingMaxRetry: 5,
+            levelLoadingMaxRetry: 5,
+            fragLoadingMaxRetry: 5,
             liveSyncDurationCount: 15, // Tolerate higher latency behind live edge
             liveMaxLatencyDurationCount: 30,
+            abrEwmaFastLive: 3.0,
+            abrEwmaSlowLive: 9.0,
+            abrEwmaFastVoD: 3.0,
+            abrEwmaSlowVoD: 9.0,
+            abrEwmaDefaultEstimate: 500000, // 500 kbps Default estimate
+            abrBandWidthFactor: 0.95, // 95% of estimated bandwidth
+            abrBandWidthUpFactor: 0.7, // 70% threshold for upswitching
+            testBandwidth: true
           });
           currentHls = hls;
           hlsRef.current = hls;

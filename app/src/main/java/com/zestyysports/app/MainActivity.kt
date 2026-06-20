@@ -958,9 +958,19 @@ fun VideoPlayerScreen(
             )
             .setBackBuffer(0, false)
             .build()
+            
+        val trackSelector = androidx.media3.exoplayer.trackselection.DefaultTrackSelector(context).apply {
+            setParameters(
+                buildUponParameters()
+                    .setForceHighestSupportedBitrate(false)
+                    .setMaxVideoBitrate(Int.MAX_VALUE)
+            )
+        }
+            
         ExoPlayer.Builder(context)
             .setLoadControl(loadControl)
             .setBandwidthMeter(bandwidthMeter)
+            .setTrackSelector(trackSelector)
             .build()
     }
 
