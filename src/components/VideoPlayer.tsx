@@ -507,11 +507,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title, poster, on
           const hls = new Hls({
             enableWorker: false, // Disabling worker ensures iframe sandbox compatibility
             lowLatencyMode: false,
-            liveSyncDurationCount: 7,
-            maxBufferLength: 60,
-            maxMaxBufferLength: 90,
-            manifestLoadingMaxRetry: 2,
-            levelLoadingMaxRetry: 2,
+            maxBufferLength: 120, // Increased buffer
+            maxMaxBufferLength: 180,
+            manifestLoadingMaxRetry: 4,
+            levelLoadingMaxRetry: 4,
+            fragLoadingMaxRetry: 4,
+            liveSyncDurationCount: 15, // Tolerate higher latency behind live edge
+            liveMaxLatencyDurationCount: 30,
           });
           currentHls = hls;
           hlsRef.current = hls;
