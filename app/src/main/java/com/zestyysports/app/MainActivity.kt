@@ -217,11 +217,15 @@ fun ZestyyApp(isDarkTheme: Boolean, onThemeToggle: () -> Unit, onOrientationChan
         }
     }
 
+    var hasShownJoinPopup by remember { mutableStateOf(false) }
+
     if (selectedChannel != null) {
         VideoPlayerScreen(
             channel = selectedChannel!!,
             allChannels = channels,
             onOrientationChange = onOrientationChange,
+            showJoinPopupInitial = !hasShownJoinPopup,
+            onPopupDismissed = { hasShownJoinPopup = true },
             onBack = { selectedChannel = null },
             onChannelSelect = { selectedChannel = it }
         )
@@ -334,7 +338,7 @@ fun MainScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             Column(modifier = Modifier.fillMaxSize()) {
                 if (currentTab == "search") {
-                    OutlinedTextField(
+                    androidx.compose.material3.TextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         modifier = Modifier
@@ -343,15 +347,13 @@ fun MainScreen(
                         shape = RoundedCornerShape(12.dp),
                         placeholder = { Text("Search channels...") },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
-                            unfocusedTextColor = if (isDarkTheme) Color.White else Color(0xFF171717),
-                            focusedPlaceholderColor = Color.Gray,
-                            unfocusedPlaceholderColor = Color.Gray,
-                            focusedBorderColor = Color(0xFFDC2626), // focus:border-red-500
-                            unfocusedBorderColor = if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color(0xFFE5E5E5),
-                            focusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
-                            unfocusedContainerColor = if (isDarkTheme) Color(0xFF121212) else Color.White,
+                        singleLine = true,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            imeAction = androidx.compose.ui.text.input.ImeAction.Search
+                        ),
+                        colors = androidx.compose.material3.TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
                         )
                     )
                 }
@@ -361,9 +363,11 @@ fun MainScreen(
                     state = listState,
                     modifier = Modifier.weight(1f).fillMaxWidth()
                 ) {
-                    item {
-                        // Hero Section
-                        HeroSection()
+                    if (currentTab == "home") {
+                        item {
+                            // Hero Section
+                            HeroSection()
+                        }
                     }
 
                     if (currentTab == "home") {
@@ -939,13 +943,15 @@ fun VideoPlayerScreen(
     channel: M3UItem, 
     allChannels: List<M3UItem>,
     onOrientationChange: (Boolean) -> Unit, 
+    showJoinPopupInitial: Boolean,
+    onPopupDismissed: () -> Unit,
     onBack: () -> Unit,
     onChannelSelect: (M3UItem) -> Unit
 ) {
     val context = LocalContext.current
     var showStatsForNerds by remember { mutableStateOf(false) }
     var isBuffering by remember { mutableStateOf(true) }
-    var showJoinPopup by remember { mutableStateOf(true) }
+    var showJoinPopup by remember { mutableStateOf(showJoinPopupInitial) }
 
     val bandwidthMeter = remember { androidx.media3.exoplayer.upstream.DefaultBandwidthMeter.Builder(context).build() }
     val exoPlayer = remember {
@@ -976,7 +982,6 @@ fun VideoPlayerScreen(
 
     LaunchedEffect(channel) {
         showStatsForNerds = false
-        showJoinPopup = true
         val dataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
             .setConnectTimeoutMs(30000)
             .setReadTimeoutMs(30000)
@@ -1358,7 +1363,10 @@ fun VideoPlayerScreen(
         } // End of if
     } // End of outer Column
     if (showJoinPopup && !isLandscape) {
-        androidx.compose.ui.window.Dialog(onDismissRequest = { showJoinPopup = false }) {
+        androidx.compose.ui.window.Dialog(onDismissRequest = { 
+            showJoinPopup = false 
+            onPopupDismissed()
+        }) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1393,7 +1401,10 @@ fun VideoPlayerScreen(
                     }
                     
                     Spacer(Modifier.height(24.dp))
-                    Button(onClick = { showJoinPopup = false }, modifier = Modifier.fillMaxWidth().height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface), shape = RoundedCornerShape(50)) {
+                    Button(onClick = { 
+                        showJoinPopup = false 
+                        onPopupDismissed()
+                    }, modifier = Modifier.fillMaxWidth().height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface), shape = RoundedCornerShape(50)) {
                         Text("CLOSE & WATCH STREAM", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                     }
                 }
